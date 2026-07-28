@@ -110,7 +110,7 @@ Controller expõe consulta (GET /api/vendas, /api/financeiro/...)
       pacote renomeado pra convenção correta, primeiro commit.
 - [x] **Fase 1 — Camada de domínio**: entidades `Venda`, `Pagamento` e os
       Repository JPA correspondentes. (`Repasse` fica pra Fase 6, junto do financeiro.)
-- [ ] **Fase 2 — Primeiro Controller**: endpoint simples de teste (`GET /api/status`)
+- [x] **Fase 2 — Primeiro Controller**: endpoint simples de teste (`GET /api/status`)
       pra sentir o ciclo requisição → resposta.
 - [ ] **Fase 3 — Autenticação via API**: portar o fluxo OAuth2 do `Scanner` bloqueante
       pra endpoints HTTP; client id/secret via variável de ambiente.
