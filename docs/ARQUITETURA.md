@@ -108,8 +108,8 @@ Controller expõe consulta (GET /api/vendas, /api/financeiro/...)
 
 - [x] **Fase 0 — Fundamentos**: repositório criado, projeto gerado no Spring Initializr,
       pacote renomeado pra convenção correta, primeiro commit.
-- [ ] **Fase 1 — Camada de domínio**: entidades `Venda`, `Pagamento`, `Repasse` e os
-      Repository JPA correspondentes.
+- [x] **Fase 1 — Camada de domínio**: entidades `Venda`, `Pagamento` e os
+      Repository JPA correspondentes. (`Repasse` fica pra Fase 6, junto do financeiro.)
 - [ ] **Fase 2 — Primeiro Controller**: endpoint simples de teste (`GET /api/status`)
       pra sentir o ciclo requisição → resposta.
 - [ ] **Fase 3 — Autenticação via API**: portar o fluxo OAuth2 do `Scanner` bloqueante
