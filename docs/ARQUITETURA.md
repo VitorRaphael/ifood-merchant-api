@@ -112,8 +112,10 @@ Controller expõe consulta (GET /api/vendas, /api/financeiro/...)
       Repository JPA correspondentes. (`Repasse` fica pra Fase 6, junto do financeiro.)
 - [x] **Fase 2 — Primeiro Controller**: endpoint simples de teste (`GET /api/status`)
       pra sentir o ciclo requisição → resposta.
-- [ ] **Fase 3 — Autenticação via API**: portar o fluxo OAuth2 do `Scanner` bloqueante
-      pra endpoints HTTP; client id/secret via variável de ambiente.
+- [x] **Fase 3 — Autenticação via API**: fluxo `client_credentials` via `POST /api/auth/autenticar`,
+      client id/secret via variável de ambiente. Usa o app de teste (sandbox) do iFood, vinculado
+      automaticamente à loja de teste — o app "Scooby Financial" fica reservado pra homologação futura
+      com a loja real.
 - [ ] **Fase 4 — Consumo do iFood**: status da loja e polling de eventos agendado
       (`@Scheduled`).
 - [ ] **Fase 5 — Persistir vendas**: mapear pedidos recebidos pra `Venda`/`Pagamento`
