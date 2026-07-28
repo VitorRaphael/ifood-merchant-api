@@ -92,17 +92,24 @@ Salva Venda + Pagamento no MySQL
 Controller expõe consulta (GET /api/vendas, /api/financeiro/...)
 ```
 
-## Endpoints planejados
+## Endpoints
 
-| Método | Rota                       | O que faz                                             | Fase |
-|--------|-----------------------------|--------------------------------------------------------|------|
-| GET    | /api/auth/iniciar           | Inicia o OAuth2 e devolve a URL de verificação          | 3    |
-| POST   | /api/auth/confirmar         | Recebe o código de 9 letras e troca pelo access token   | 3    |
-| GET    | /api/loja/status            | Loja aberta ou fechada agora                            | 4    |
-| GET    | /api/vendas                 | Lista vendas, com filtro por período                    | 5    |
-| GET    | /api/vendas/{id}             | Detalhe de uma venda e seus pagamentos                  | 5    |
-| GET    | /api/financeiro/repasses    | Lista os repasses recebidos do iFood                    | 6    |
-| GET    | /api/financeiro/resumo      | Soma bruto/líquido/comissão entre duas datas            | 6    |
+Registro vivo de toda rota da nossa API — atualizar a cada endpoint novo. É a
+referência rápida pra consultar sozinho sem precisar reler o código inteiro.
+
+| Método | Rota                       | O que faz                                               | Fase | Status         |
+|--------|-----------------------------|----------------------------------------------------------|------|----------------|
+| GET    | /api/status                 | Ping simples pra confirmar que a API está no ar           | 2    | ✅ Implementado |
+| POST   | /api/auth/autenticar        | Autentica via `client_credentials` e salva o token         | 3    | ✅ Implementado |
+| GET    | /api/loja/lojas             | Lista as lojas vinculadas ao app (proxy do iFood)          | 4    | ✅ Implementado (testado) |
+| GET    | /api/loja/status            | Loja aberta ou fechada agora                                | 4    | ⏳ Planejado    |
+| GET    | /api/loja/{id}               | Detalhes completos de uma loja                              | 4    | ⏳ Planejado    |
+| GET/PUT| /api/loja/horarios          | Consultar/atualizar horários de funcionamento                | 4    | ⏳ Planejado    |
+| GET/POST/DELETE | /api/loja/pausas   | Consultar/criar/remover pausas da loja                       | 4    | ⏳ Planejado    |
+| GET    | /api/vendas                 | Lista vendas, com filtro por período                        | 5    | ⏳ Planejado    |
+| GET    | /api/vendas/{id}             | Detalhe de uma venda e seus pagamentos                      | 5    | ⏳ Planejado    |
+| GET    | /api/financeiro/repasses    | Lista os repasses recebidos do iFood                        | 6    | ⏳ Planejado    |
+| GET    | /api/financeiro/resumo      | Soma bruto/líquido/comissão entre duas datas                | 6    | ⏳ Planejado    |
 
 ## Roteiro de construção
 
@@ -116,8 +123,14 @@ Controller expõe consulta (GET /api/vendas, /api/financeiro/...)
       client id/secret via variável de ambiente. Usa o app de teste (sandbox) do iFood, vinculado
       automaticamente à loja de teste — o app "Scooby Financial" fica reservado pra homologação futura
       com a loja real.
-- [ ] **Fase 4 — Consumo do iFood**: status da loja e polling de eventos agendado
-      (`@Scheduled`).
+- [ ] **Fase 4 — Consumo do iFood (módulo Merchant)**: implementar e tratar corretamente
+      os 8 pontos exigidos na homologação do módulo Merchant, na ordem:
+      1) `GET /merchants` (listar lojas) · 2) `GET /merchants/{id}/status` (aberta/fechada)
+      · 3) `GET /merchants/{id}` (detalhes) · 4) `GET`+`PUT /merchants/{id}/opening-hours`
+      (horários) · 5) `GET`+`POST`+`DELETE /merchants/{id}/interruptions` (pausas).
+      Tratamento de erro obrigatório em todos: 401 (token inválido), 403 (sem permissão),
+      409 (conflito, ex. pausa sobreposta), 429 (respeitar `Retry-After`), 5xx (retry com
+      backoff). Depois, polling de eventos agendado (`@Scheduled`).
 - [ ] **Fase 5 — Persistir vendas**: mapear pedidos recebidos pra `Venda`/`Pagamento`
       e salvar no banco.
 - [ ] **Fase 6 — Financeiro**: consumir repasses/settlements, salvar `Repasse`,
