@@ -80,4 +80,8 @@ public class IFoodMerchantService {
         return executarGet(BASE_URL + "/merchants/" + merchantId + "/status");
     }
 
+    public String buscarDetalhes() {
+        return executarGet(BASE_URL + "/merchants/" + merchantId);
+    }
+
 }

@@ -32,4 +32,12 @@ public class MerchantController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(resposta);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<String> detalhes() {
+        String resposta = merchantService.buscarDetalhes();
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(resposta);
+    }
 }
