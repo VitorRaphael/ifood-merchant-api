@@ -99,6 +99,32 @@ public class IFoodMerchantService {
         }
     }
 
+    private String executarPost(String url, String corpoJson) {
+        String token = authService.getValidToken();
+        if (token == null) {
+            throw new IllegalStateException("Sem token válido. Chame /api/auth/autenticar primeiro.");
+        }
+
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .timeout(Duration.ofSeconds(10))
+                .POST(HttpRequest.BodyPublishers.ofString(corpoJson))
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return tratarResposta(response);
+        } catch (java.io.IOException | InterruptedException e) {
+            throw new RuntimeException("Falha de conexão com o iFood: " + e.getMessage(), e);
+        }
+    }
+
     @Value("${ifood.merchant.id}")
     private String merchantId;
 
@@ -120,6 +146,10 @@ public class IFoodMerchantService {
 
     public String buscarPausas() {
         return executarGet(BASE_URL + "/merchants/" + merchantId + "/interruptions");
+    }
+
+    public String criarPausa(String corpoJson) {
+        return executarPost(BASE_URL + "/merchants/" + merchantId + "/interruptions", corpoJson);
     }
 
 }

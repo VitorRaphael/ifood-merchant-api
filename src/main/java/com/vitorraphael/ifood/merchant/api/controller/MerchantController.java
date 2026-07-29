@@ -62,4 +62,13 @@ public class MerchantController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(resposta);
     }
+
+    @PostMapping("/pausas")
+    public ResponseEntity<String> criarPausa(@RequestBody String corpo) {
+        String resposta = merchantService.criarPausa(corpo);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(resposta);
+    }
+
 }
