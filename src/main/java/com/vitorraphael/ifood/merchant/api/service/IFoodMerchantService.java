@@ -62,6 +62,9 @@ public class IFoodMerchantService {
         if (status == 403) {
             throw new RuntimeException("Sem permissão para acessar essa loja.");
         }
+        if (status == 409) {
+            throw new RuntimeException("Conflito: essa operação esbarra em algo que já existe (ex. pausa sobreposta a um horário existente).");
+        }
         if (status == 429) {
             String retryAfter = Optional.ofNullable(response.headers().firstValue("Retry-After").orElse(null))
                     .orElse("alguns segundos");
