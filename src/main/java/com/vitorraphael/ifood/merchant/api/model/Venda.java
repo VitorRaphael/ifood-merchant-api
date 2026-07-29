@@ -1,5 +1,6 @@
 package com.vitorraphael.ifood.merchant.api.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,5 +38,6 @@ public class Venda {
     private String status;
 
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Pagamento> pagamentos = new ArrayList<>();
 }

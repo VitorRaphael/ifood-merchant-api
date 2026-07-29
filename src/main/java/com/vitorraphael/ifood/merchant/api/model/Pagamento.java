@@ -1,5 +1,6 @@
 package com.vitorraphael.ifood.merchant.api.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,5 +27,6 @@ public class Pagamento {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_venda", nullable = false)
+    @JsonBackReference
     private Venda venda;
 }
