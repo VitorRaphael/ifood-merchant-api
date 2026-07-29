@@ -40,4 +40,12 @@ public class MerchantController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(resposta);
     }
+
+    @GetMapping("/horarios")
+    public ResponseEntity<String> horarios() {
+        String resposta = merchantService.buscarHorarios();
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(resposta);
+    }
 }

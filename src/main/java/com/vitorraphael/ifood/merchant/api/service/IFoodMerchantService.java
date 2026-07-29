@@ -84,4 +84,8 @@ public class IFoodMerchantService {
         return executarGet(BASE_URL + "/merchants/" + merchantId);
     }
 
+    public String buscarHorarios() {
+        return executarGet(BASE_URL + "/merchants/" + merchantId + "/opening-hours");
+    }
+
 }
