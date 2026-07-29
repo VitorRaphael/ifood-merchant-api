@@ -54,4 +54,12 @@ public class MerchantController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(resposta);
     }
+
+    @GetMapping("/pausas")
+    public ResponseEntity<String> pausas() {
+        String resposta = merchantService.buscarPausas();
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(resposta);
+    }
 }

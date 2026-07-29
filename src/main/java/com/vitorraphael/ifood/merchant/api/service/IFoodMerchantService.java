@@ -118,4 +118,8 @@ public class IFoodMerchantService {
         return executarPut(BASE_URL + "/merchants/" + merchantId + "/opening-hours", corpoJson);
     }
 
+    public String buscarPausas() {
+        return executarGet(BASE_URL + "/merchants/" + merchantId + "/interruptions");
+    }
+
 }
