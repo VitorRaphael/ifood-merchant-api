@@ -143,8 +143,8 @@ referência rápida pra consultar sozinho sem precisar reler o código inteiro.
       - [x] `GET /api/vendas` e `GET /api/vendas/{id}` testados no Postman.
       - [x] `IFoodEventService` processa o evento "PLACED" (`code == "PLC"`) sozinho e persiste
             a venda automaticamente — confirmado com 2 pedidos de teste reais, sem chamada manual.
-      - [ ] Falta: acknowledgment dos eventos pro iFood (hoje o mesmo evento é reprocessado a
-            cada polling até ser reconhecido — próximo commit).
+      - [x] Acknowledgment dos eventos junto ao iFood (`POST /events/v1.0/events/acknowledgment`)
+            implementado e confirmado no log — eventos processados não são mais reenviados.
 - [ ] **Fase 6 — Financeiro**: consumir repasses/settlements, salvar `Repasse`,
       endpoint de resumo agregado.
 - [ ] **Fase 7 — Qualidade**: tratamento de erro, testes automatizados, documentação

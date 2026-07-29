@@ -12,12 +12,15 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class IFoodEventService {
 
     private static final Logger log = LoggerFactory.getLogger(IFoodEventService.class);
     private static final String EVENTS_URL = "https://merchant-api.ifood.com.br/events/v1.0/events:polling";
+    private static final String ACK_URL = "https://merchant-api.ifood.com.br/events/v1.0/events/acknowledgment";
 
     private final IFoodAuthService authService;
     private final IFoodOrderService orderService;
@@ -59,7 +62,7 @@ public class IFoodEventService {
             }
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 log.info("Polling de eventos: {}", response.body());
-                processarEventos(response.body());
+                processarEventos(response.body(), token);
                 return;
             }
             log.error("Polling de eventos falhou [{}]: {}", response.statusCode(), response.body());
@@ -68,10 +71,16 @@ public class IFoodEventService {
         }
     }
 
-    private void processarEventos(String corpoJson) {
+    private void processarEventos(String corpoJson, String token) {
         JsonNode eventos = objectMapper.readTree(corpoJson);
+        List<String> idsEventos = new ArrayList<>();
 
         for (JsonNode evento : eventos) {
+            JsonNode idNode = evento.get("id");
+            if (idNode != null) {
+                idsEventos.add(idNode.asString());
+            }
+
             JsonNode codigoNode = evento.get("code");
             JsonNode orderIdNode = evento.get("orderId");
 
@@ -89,6 +98,46 @@ public class IFoodEventService {
             } catch (Exception e) {
                 log.error("Falha ao processar evento do pedido {}: {}", orderId, e.getMessage());
             }
+        }
+
+        confirmarEventos(idsEventos, token);
+    }
+
+    private void confirmarEventos(List<String> idsEventos, String token) {
+        if (idsEventos.isEmpty()) {
+            return;
+        }
+
+        StringBuilder corpo = new StringBuilder("[");
+        for (int i = 0; i < idsEventos.size(); i++) {
+            if (i > 0) {
+                corpo.append(",");
+            }
+            corpo.append("{\"id\":\"").append(idsEventos.get(i)).append("\"}");
+        }
+        corpo.append("]");
+
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(ACK_URL))
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .timeout(Duration.ofSeconds(10))
+                .POST(HttpRequest.BodyPublishers.ofString(corpo.toString()))
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                log.info("Eventos reconhecidos junto ao iFood: {}", idsEventos.size());
+            } else {
+                log.error("Falha ao reconhecer eventos [{}]: {}", response.statusCode(), response.body());
+            }
+        } catch (java.io.IOException | InterruptedException e) {
+            log.error("Falha de conexão ao reconhecer eventos: {}", e.getMessage());
         }
     }
 }
