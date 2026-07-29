@@ -1,5 +1,6 @@
 package com.vitorraphael.ifood.merchant.api.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -71,4 +72,12 @@ public class IFoodMerchantService {
         }
         throw new RuntimeException("iFood recusou o pedido [" + status + "]: " + response.body());
     }
+
+    @Value("${ifood.merchant.id}")
+    private String merchantId;
+
+    public String buscarStatus() {
+        return executarGet(BASE_URL + "/merchants/" + merchantId + "/status");
+    }
+
 }

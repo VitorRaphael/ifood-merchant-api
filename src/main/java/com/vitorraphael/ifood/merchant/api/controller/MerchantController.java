@@ -24,4 +24,12 @@ public class MerchantController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(resposta);
     }
+
+    @GetMapping("/status")
+    public ResponseEntity<String> status() {
+        String resposta = merchantService.buscarStatus();
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(resposta);
+    }
 }

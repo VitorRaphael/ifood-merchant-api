@@ -102,7 +102,7 @@ referência rápida pra consultar sozinho sem precisar reler o código inteiro.
 | GET    | /api/status                 | Ping simples pra confirmar que a API está no ar           | 2    | ✅ Implementado |
 | POST   | /api/auth/autenticar        | Autentica via `client_credentials` e salva o token         | 3    | ✅ Implementado |
 | GET    | /api/loja/lojas             | Lista as lojas vinculadas ao app (proxy do iFood)          | 4    | ✅ Implementado (testado) |
-| GET    | /api/loja/status            | Loja aberta ou fechada agora                                | 4    | ⏳ Planejado    |
+| GET    | /api/loja/status            | Loja aberta ou fechada agora                                | 4    | ✅ Implementado (testado) |
 | GET    | /api/loja/{id}               | Detalhes completos de uma loja                              | 4    | ⏳ Planejado    |
 | GET/PUT| /api/loja/horarios          | Consultar/atualizar horários de funcionamento                | 4    | ⏳ Planejado    |
 | GET/POST/DELETE | /api/loja/pausas   | Consultar/criar/remover pausas da loja                       | 4    | ⏳ Planejado    |
