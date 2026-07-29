@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/vendas")
@@ -27,4 +29,15 @@ public class VendaController {
         Venda venda = vendaService.processarPedido(pedidoJson);
         return ResponseEntity.ok(venda);
     }
+
+    @GetMapping
+    public ResponseEntity<List<Venda>> listar() {
+        return ResponseEntity.ok(vendaService.listarVendas());
+    }
+
+    @GetMapping("/{idVenda}")
+    public ResponseEntity<Venda> detalhe(@PathVariable String idVenda) {
+        return ResponseEntity.ok(vendaService.buscarVenda(idVenda));
+    }
+
 }

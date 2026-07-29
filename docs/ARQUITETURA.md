@@ -106,8 +106,8 @@ referência rápida pra consultar sozinho sem precisar reler o código inteiro.
 | GET    | /api/loja/{id}               | Detalhes completos de uma loja                              | 4    | ✅ Implementado (testado) |
 | GET/PUT| /api/loja/horarios          | Consultar/atualizar horários de funcionamento                | 4    | ✅ Implementado (testado) |
 | GET/POST/DELETE | /api/loja/pausas   | Consultar/criar/remover pausas da loja                       | 4    | ✅ Implementado (testado) |
-| GET    | /api/vendas                 | Lista vendas, com filtro por período                        | 5    | ⏳ Planejado    |
-| GET    | /api/vendas/{id}             | Detalhe de uma venda e seus pagamentos                      | 5    | ⏳ Planejado    |
+| GET    | /api/vendas                 | Lista vendas, com filtro por período                        | 5    | ✅ Implementado (testado) |
+| GET    | /api/vendas/{id}             | Detalhe de uma venda e seus pagamentos                      | 5    | ✅ Implementado (testado) |
 | GET    | /api/financeiro/repasses    | Lista os repasses recebidos do iFood                        | 6    | ⏳ Planejado    |
 | GET    | /api/financeiro/resumo      | Soma bruto/líquido/comissão entre duas datas                | 6    | ⏳ Planejado    |
 
@@ -135,8 +135,16 @@ referência rápida pra consultar sozinho sem precisar reler o código inteiro.
       - [x] Tratamento de erro 409 (conflito) implementado — não testável de fato na loja
             de teste (o sandbox não aplica a regra de negócio real de conflito).
       - [x] Polling de eventos agendado (`@Scheduled`, a cada 30s) rodando e confirmado no log.
-- [ ] **Fase 5 — Persistir vendas**: mapear pedidos recebidos pra `Venda`/`Pagamento`
+- [x] **Fase 5 — Persistir vendas**: mapear pedidos recebidos pra `Venda`/`Pagamento`
       e salvar no banco.
+      - [x] `IFoodOrderService`/`OrderController` buscam o detalhe do pedido no iFood.
+      - [x] `VendaService` mapeia o JSON do pedido pra `Venda`+`Pagamento` e salva no MySQL
+            (corrigido loop infinito de serialização com `@JsonManagedReference`/`@JsonBackReference`).
+      - [x] `GET /api/vendas` e `GET /api/vendas/{id}` testados no Postman.
+      - [x] `IFoodEventService` processa o evento "PLACED" (`code == "PLC"`) sozinho e persiste
+            a venda automaticamente — confirmado com 2 pedidos de teste reais, sem chamada manual.
+      - [ ] Falta: acknowledgment dos eventos pro iFood (hoje o mesmo evento é reprocessado a
+            cada polling até ser reconhecido — próximo commit).
 - [ ] **Fase 6 — Financeiro**: consumir repasses/settlements, salvar `Repasse`,
       endpoint de resumo agregado.
 - [ ] **Fase 7 — Qualidade**: tratamento de erro, testes automatizados, documentação

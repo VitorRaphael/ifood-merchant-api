@@ -9,6 +9,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Service
 public class VendaService {
@@ -40,5 +41,14 @@ public class VendaService {
         }
 
         return vendaRepository.save(venda);
+    }
+
+    public List<Venda> listarVendas() {
+        return vendaRepository.findAll();
+    }
+
+    public Venda buscarVenda(String idVenda) {
+        return vendaRepository.findById(idVenda)
+                .orElseThrow(() -> new RuntimeException("Venda não encontrada: " + idVenda));
     }
 }
