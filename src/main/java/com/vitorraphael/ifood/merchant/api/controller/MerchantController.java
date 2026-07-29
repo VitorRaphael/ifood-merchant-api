@@ -3,9 +3,7 @@ package com.vitorraphael.ifood.merchant.api.controller;
 import com.vitorraphael.ifood.merchant.api.service.IFoodMerchantService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/loja")
@@ -44,6 +42,14 @@ public class MerchantController {
     @GetMapping("/horarios")
     public ResponseEntity<String> horarios() {
         String resposta = merchantService.buscarHorarios();
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(resposta);
+    }
+
+    @PutMapping("/horarios")
+    public ResponseEntity<String> atualizarHorarios(@RequestBody String corpo) {
+        String resposta = merchantService.atualizarHorarios(corpo);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(resposta);

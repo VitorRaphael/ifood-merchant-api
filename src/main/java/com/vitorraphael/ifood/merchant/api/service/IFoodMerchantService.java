@@ -53,7 +53,7 @@ public class IFoodMerchantService {
     private String tratarResposta(HttpResponse<String> response) {
         int status = response.statusCode();
 
-        if (status == 200) {
+        if (status >= 200 && status < 300) {
             return response.body();
         }
         if (status == 401) {
@@ -73,6 +73,32 @@ public class IFoodMerchantService {
         throw new RuntimeException("iFood recusou o pedido [" + status + "]: " + response.body());
     }
 
+    private String executarPut(String url, String corpoJson) {
+        String token = authService.getValidToken();
+        if (token == null) {
+            throw new IllegalStateException("Sem token válido. Chame /api/auth/autenticar primeiro.");
+        }
+
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .timeout(Duration.ofSeconds(10))
+                .PUT(HttpRequest.BodyPublishers.ofString(corpoJson))
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return tratarResposta(response);
+        } catch (java.io.IOException | InterruptedException e) {
+            throw new RuntimeException("Falha de conexão com o iFood: " + e.getMessage(), e);
+        }
+    }
+
     @Value("${ifood.merchant.id}")
     private String merchantId;
 
@@ -86,6 +112,10 @@ public class IFoodMerchantService {
 
     public String buscarHorarios() {
         return executarGet(BASE_URL + "/merchants/" + merchantId + "/opening-hours");
+    }
+
+    public String atualizarHorarios(String corpoJson) {
+        return executarPut(BASE_URL + "/merchants/" + merchantId + "/opening-hours", corpoJson);
     }
 
 }
