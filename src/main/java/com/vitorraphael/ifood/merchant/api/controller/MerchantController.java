@@ -71,4 +71,11 @@ public class MerchantController {
                 .body(resposta);
     }
 
+    @DeleteMapping("/pausas/{idPausa}")
+    public ResponseEntity<String> removerPausa(@PathVariable String idPausa) {
+        String resposta = merchantService.removerPausa(idPausa);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(resposta);
+    }
 }
