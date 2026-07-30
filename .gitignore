@@ -31,4 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Token do ifood
 tokens.json
+
+# Banco de dado sqLite
+*.db
