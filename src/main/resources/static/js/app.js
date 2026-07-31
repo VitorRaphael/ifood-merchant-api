@@ -161,7 +161,13 @@ function corSerieRGB() {
 function criarSvg(largura, altura) {
     const ns = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(ns, 'svg');
+    // width/height (alem do viewBox) sao o que deixa o navegador saber a proporcao
+    // certa do desenho — sem isso, "width:100%; height:auto" no CSS pode esticar
+    // o SVG de um jeito nada a ver com o conteudo real.
+    svg.setAttribute('width', largura);
+    svg.setAttribute('height', altura);
     svg.setAttribute('viewBox', `0 0 ${largura} ${altura}`);
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     svg.setAttribute('role', 'img');
     return svg;
 }
