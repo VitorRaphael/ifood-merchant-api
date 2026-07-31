@@ -40,4 +40,8 @@ public class Venda {
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Pagamento> pagamentos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<ItemVenda> itens = new ArrayList<>();
 }

@@ -1,6 +1,7 @@
 package com.vitorraphael.ifood.merchant.api.service;
 
 import com.vitorraphael.ifood.merchant.api.exception.VendaNaoEncontradaException;
+import com.vitorraphael.ifood.merchant.api.model.ItemVenda;
 import com.vitorraphael.ifood.merchant.api.model.Pagamento;
 import com.vitorraphael.ifood.merchant.api.model.ResumoFinanceiro;
 import com.vitorraphael.ifood.merchant.api.model.Venda;
@@ -41,6 +42,16 @@ public class VendaService {
             pagamento.setValorPago(new BigDecimal(metodo.get("value").asString()));
             pagamento.setVenda(venda);
             venda.getPagamentos().add(pagamento);
+        }
+
+        for (JsonNode item : pedido.get("items")) {
+            ItemVenda itemVenda = new ItemVenda();
+            itemVenda.setNome(item.get("name").asString());
+            itemVenda.setQuantidade(item.get("quantity").asInt());
+            itemVenda.setPrecoUnitario(new BigDecimal(item.get("unitPrice").asString()));
+            itemVenda.setPrecoTotal(new BigDecimal(item.get("totalPrice").asString()));
+            itemVenda.setVenda(venda);
+            venda.getItens().add(itemVenda);
         }
 
         return vendaRepository.save(venda);

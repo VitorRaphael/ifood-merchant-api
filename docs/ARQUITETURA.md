@@ -59,6 +59,21 @@ iFood Merchant API (OAuth2 · Eventos · Financeiro)
 | valorPago       | BigDecimal   | Valor pago por esse método        |
 | venda           | Venda · FK   | N pagamentos → 1 venda            |
 
+### ItemVenda (tabela `itens_venda`)
+
+| Campo         | Tipo         | Descrição                                          |
+|---------------|--------------|------------------------------------------------------|
+| idItem        | Long · PK    | Gerado automaticamente                                |
+| nome          | String       | Nome do produto (campo `name` do pedido no iFood)      |
+| quantidade    | Integer      | Quantidade desse item no pedido                        |
+| precoUnitario | BigDecimal   | Preço unitário do produto (campo `unitPrice`)          |
+| precoTotal    | BigDecimal   | Preço total da linha, já com opcionais/customizações (campo `totalPrice`) |
+| venda         | Venda · FK   | N itens → 1 venda                                      |
+
+Escopo consciente: não persistimos a árvore de `options`/`customizations` (complementos e
+personalizações de cada item) — só o item principal. Suficiente para ranking de produto
+mais/menos vendido; revisitar só se um dia precisarmos de análise por complemento.
+
 ### Repasse (tabela `repasses`)
 
 | Campo         | Tipo         | Descrição                              |
