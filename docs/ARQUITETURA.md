@@ -167,7 +167,7 @@ referência rápida pra consultar sozinho sem precisar reler o código inteiro.
             de expiração (`expiraEm`) junto do token e se autorrenova sozinho sempre que
             alguém chama `getValidToken()` e o token está vencido ou ausente — não precisa
             mais chamar `/api/auth/autenticar` manualmente no dia a dia.
-- [ ] **Fase 7 — Qualidade**: tratamento de erro, testes automatizados, documentação
+- [x] **Fase 7 — Qualidade**: tratamento de erro, testes automatizados, documentação
       OpenAPI/Swagger.
       - [x] Tratamento de erro centralizado: pacote `exception` com `IFoodApiException`,
             `TokenIndisponivelException`, `VendaNaoEncontradaException` e um
@@ -176,8 +176,18 @@ referência rápida pra consultar sozinho sem precisar reler o código inteiro.
             (`ErroResposta`) em toda a API — antes, qualquer exceção virava o erro genérico
             500 padrão do Spring, sem diferenciar a causa real. Testado ao vivo (venda
             inexistente → 404 correto).
-      - [ ] Testes automatizados.
-      - [ ] Documentação OpenAPI/Swagger.
+      - [x] Testes automatizados: `VendaServiceTest` (unitário, com Mockito — regras de
+            negócio de `buscarVenda`/`gerarResumo`) e `VendaControllerTest` (`@WebMvcTest`,
+            confirma que o `GlobalExceptionHandler` realmente devolve 404 estruturado na
+            camada HTTP). `src/test/resources/application.properties` próprio, com
+            credenciais fictícias e banco SQLite separado — os testes não dependem de
+            nenhuma variável de ambiente real nem tocam no `ifood_merchant.db` de verdade.
+            7 testes, todos passando (`mvn test` → `BUILD SUCCESS`).
+      - [x] Documentação OpenAPI/Swagger: dependência `springdoc-openapi-starter-webmvc-ui`
+            (3.0.3) + `OpenApiConfig` com título/descrição. UI disponível em
+            `/swagger-ui/index.html`, JSON da spec em `/v3/api-docs` — gerado automaticamente
+            a partir dos Controllers existentes, sem anotação manual por endpoint. Testado
+            ao vivo, confirmado funcionando.
 
 ## Segurança & configuração
 
