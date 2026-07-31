@@ -108,8 +108,9 @@ referência rápida pra consultar sozinho sem precisar reler o código inteiro.
 | GET/POST/DELETE | /api/loja/pausas   | Consultar/criar/remover pausas da loja                       | 4    | ✅ Implementado (testado) |
 | GET    | /api/vendas                 | Lista vendas, com filtro por período                        | 5    | ✅ Implementado (testado) |
 | GET    | /api/vendas/{id}             | Detalhe de uma venda e seus pagamentos                      | 5    | ✅ Implementado (testado) |
-| GET    | /api/financeiro/repasses    | Lista os repasses recebidos do iFood                        | 6    | ⏳ Planejado    |
-| GET    | /api/financeiro/resumo      | Soma bruto/líquido/comissão entre duas datas                | 6    | ⏳ Planejado    |
+| POST   | /api/financeiro/sincronizar | Busca liquidações no iFood e salva como `Repasse`            | 6    | ✅ Implementado (bloqueado no iFood — ticket 31017178) |
+| GET    | /api/financeiro/repasses    | Lista os repasses recebidos do iFood                        | 6    | ✅ Implementado (testado, retorna vazio até o ticket resolver) |
+| GET    | /api/financeiro/resumo      | Soma bruto/líquido/comissão entre duas datas (baseado em `Venda`) | 6    | ✅ Implementado (testado) |
 
 ## Roteiro de construção
 
@@ -145,8 +146,27 @@ referência rápida pra consultar sozinho sem precisar reler o código inteiro.
             a venda automaticamente — confirmado com 2 pedidos de teste reais, sem chamada manual.
       - [x] Acknowledgment dos eventos junto ao iFood (`POST /events/v1.0/events/acknowledgment`)
             implementado e confirmado no log — eventos processados não são mais reenviados.
-- [ ] **Fase 6 — Financeiro**: consumir repasses/settlements, salvar `Repasse`,
+- [x] **Fase 6 — Financeiro**: consumir repasses/settlements, salvar `Repasse`,
       endpoint de resumo agregado.
+      - [x] `IFoodFinancialService`/`FinanceiroController` (`POST /sincronizar`) consultam o
+            módulo Financial v3.0 do iFood — **bloqueado no lado do iFood** (401 "token
+            expired" em loja de teste mesmo com token/escopo corretos, confirmado via
+            reprodução direta na doc oficial deles; ticket de suporte 31017178 aberto em
+            30/07/2026, aguardando retorno).
+      - [x] `GET /api/financeiro/repasses` testado — retorna `[]` até o sincronizar
+            conseguir popular a tabela `repasses`.
+      - [x] `GET /api/financeiro/resumo` implementado com base na tabela `Venda` (não em
+            `Repasse`, que segue vazia) — soma bruto/líquido/quantidade de vendas entre duas
+            datas, com comissão calculada como bruto − líquido. Testado e confirmado.
+      - [x] Banco de dados migrado de MySQL para SQLite (arquivo único local `ifood_merchant.db`,
+            sem servidor/credenciais — decisão pensada para a distribuição futura do software
+            a outras lojas). Corrigido bug de serialização de `LocalDate` do dialect SQLite
+            com um `AttributeConverter` customizado (`LocalDateAttributeConverter`, guarda
+            como texto ISO `yyyy-MM-dd`).
+      - [x] Autenticação com o iFood automatizada: `IFoodAuthService` agora guarda o horário
+            de expiração (`expiraEm`) junto do token e se autorrenova sozinho sempre que
+            alguém chama `getValidToken()` e o token está vencido ou ausente — não precisa
+            mais chamar `/api/auth/autenticar` manualmente no dia a dia.
 - [ ] **Fase 7 — Qualidade**: tratamento de erro, testes automatizados, documentação
       OpenAPI/Swagger.
 

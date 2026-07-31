@@ -1,6 +1,7 @@
 package com.vitorraphael.ifood.merchant.api.service;
 
 import com.vitorraphael.ifood.merchant.api.model.Pagamento;
+import com.vitorraphael.ifood.merchant.api.model.ResumoFinanceiro;
 import com.vitorraphael.ifood.merchant.api.model.Venda;
 import com.vitorraphael.ifood.merchant.api.repository.VendaRepository;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -50,5 +52,21 @@ public class VendaService {
     public Venda buscarVenda(String idVenda) {
         return vendaRepository.findById(idVenda)
                 .orElseThrow(() -> new RuntimeException("Venda não encontrada: " + idVenda));
+    }
+
+    public ResumoFinanceiro gerarResumo(LocalDate inicio, LocalDate fim) {
+        List<Venda> vendas = vendaRepository.findByDataVendaBetween(inicio, fim);
+
+        BigDecimal totalBruto = BigDecimal.ZERO;
+        BigDecimal totalLiquido = BigDecimal.ZERO;
+
+        for (Venda venda : vendas) {
+            totalBruto = totalBruto.add(venda.getValorBruto());
+            totalLiquido = totalLiquido.add(venda.getValorLiquido());
+        }
+
+        BigDecimal comissaoTotal = totalBruto.subtract(totalLiquido);
+
+        return new ResumoFinanceiro(inicio, fim, vendas.size(), totalBruto, totalLiquido, comissaoTotal);
     }
 }
