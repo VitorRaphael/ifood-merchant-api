@@ -2,6 +2,9 @@ package com.vitorraphael.ifood.merchant.api.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.net.URI;
@@ -10,6 +13,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 
 @Service
 public class IFoodAuthService {
@@ -21,6 +25,9 @@ public class IFoodAuthService {
     private String clientSecret;
 
     private static final String TOKEN_FILE = "tokens.json";
+    private static final long MARGEM_SEGURANCA_SEGUNDOS = 60;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public void autenticar() {
         HttpClient client = HttpClient.newHttpClient();
@@ -40,18 +47,45 @@ public class IFoodAuthService {
                 throw new RuntimeException("iFood recusou a autenticação [" + response.statusCode() + "]: " + response.body());
             }
 
-            Files.writeString(Path.of(TOKEN_FILE), response.body());
+            ObjectNode token = (ObjectNode) objectMapper.readTree(response.body());
+            long expiresIn = token.get("expiresIn").asLong();
+            Instant expiraEm = Instant.now().plusSeconds(expiresIn);
+            token.put("expiraEm", expiraEm.toString());
+
+            Files.writeString(Path.of(TOKEN_FILE), token.toString());
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("Falha ao autenticar com o iFood", e);
         }
     }
 
     public String getValidToken() {
+        if (tokenExpiradoOuInexistente()) {
+            autenticar();
+        }
+
         try {
             String content = Files.readString(Path.of(TOKEN_FILE));
-            return content.split("\"accessToken\":\"")[1].split("\"")[0];
+            JsonNode token = objectMapper.readTree(content);
+            return token.get("accessToken").asString();
         } catch (IOException e) {
             return null;
+        }
+    }
+
+    private boolean tokenExpiradoOuInexistente() {
+        try {
+            String content = Files.readString(Path.of(TOKEN_FILE));
+            JsonNode token = objectMapper.readTree(content);
+            JsonNode expiraEmNode = token.get("expiraEm");
+
+            if (expiraEmNode == null) {
+                return true;
+            }
+
+            Instant expiraEm = Instant.parse(expiraEmNode.asString());
+            return Instant.now().isAfter(expiraEm.minusSeconds(MARGEM_SEGURANCA_SEGUNDOS));
+        } catch (IOException e) {
+            return true;
         }
     }
 }
