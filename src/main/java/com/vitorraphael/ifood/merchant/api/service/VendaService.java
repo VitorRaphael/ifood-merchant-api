@@ -1,5 +1,6 @@
 package com.vitorraphael.ifood.merchant.api.service;
 
+import com.vitorraphael.ifood.merchant.api.exception.VendaNaoEncontradaException;
 import com.vitorraphael.ifood.merchant.api.model.Pagamento;
 import com.vitorraphael.ifood.merchant.api.model.ResumoFinanceiro;
 import com.vitorraphael.ifood.merchant.api.model.Venda;
@@ -51,7 +52,7 @@ public class VendaService {
 
     public Venda buscarVenda(String idVenda) {
         return vendaRepository.findById(idVenda)
-                .orElseThrow(() -> new RuntimeException("Venda não encontrada: " + idVenda));
+                .orElseThrow(() -> new VendaNaoEncontradaException("Venda não encontrada: " + idVenda));
     }
 
     public ResumoFinanceiro gerarResumo(LocalDate inicio, LocalDate fim) {

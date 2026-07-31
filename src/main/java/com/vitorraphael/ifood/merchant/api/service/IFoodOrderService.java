@@ -1,5 +1,6 @@
 package com.vitorraphael.ifood.merchant.api.service;
 
+import com.vitorraphael.ifood.merchant.api.exception.IFoodApiException;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -21,9 +22,6 @@ public class IFoodOrderService {
 
     public String buscarPedido(String orderId) {
         String token = authService.getValidToken();
-        if (token == null) {
-            throw new IllegalStateException("Sem token válido. Chame /api/auth/autenticar primeiro.");
-        }
 
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
@@ -42,9 +40,9 @@ public class IFoodOrderService {
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 return response.body();
             }
-            throw new RuntimeException("iFood recusou o pedido [" + response.statusCode() + "]: " + response.body());
+            throw new IFoodApiException(response.statusCode(), "iFood recusou o pedido [" + response.statusCode() + "]: " + response.body());
         } catch (java.io.IOException | InterruptedException e) {
-            throw new RuntimeException("Falha de conexão com o iFood: " + e.getMessage(), e);
+            throw new IFoodApiException(0, "Falha de conexão com o iFood: " + e.getMessage(), e);
         }
     }
 }

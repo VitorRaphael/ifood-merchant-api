@@ -1,5 +1,7 @@
 package com.vitorraphael.ifood.merchant.api.service;
 
+import com.vitorraphael.ifood.merchant.api.exception.IFoodApiException;
+import com.vitorraphael.ifood.merchant.api.exception.TokenIndisponivelException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
@@ -44,7 +46,7 @@ public class IFoodAuthService {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 200) {
-                throw new RuntimeException("iFood recusou a autenticação [" + response.statusCode() + "]: " + response.body());
+                throw new IFoodApiException(response.statusCode(), "iFood recusou a autenticação: " + response.body());
             }
 
             ObjectNode token = (ObjectNode) objectMapper.readTree(response.body());
@@ -54,7 +56,7 @@ public class IFoodAuthService {
 
             Files.writeString(Path.of(TOKEN_FILE), token.toString());
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Falha ao autenticar com o iFood", e);
+            throw new IFoodApiException(0, "Falha de conexão ao autenticar com o iFood: " + e.getMessage(), e);
         }
     }
 
@@ -68,7 +70,7 @@ public class IFoodAuthService {
             JsonNode token = objectMapper.readTree(content);
             return token.get("accessToken").asString();
         } catch (IOException e) {
-            return null;
+            throw new TokenIndisponivelException("Não foi possível ler o token salvo: " + e.getMessage(), e);
         }
     }
 

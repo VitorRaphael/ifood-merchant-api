@@ -35,9 +35,11 @@ public class IFoodEventService {
 
     @Scheduled(fixedRate = 30000)
     public void buscarEventos() {
-        String token = authService.getValidToken();
-        if (token == null) {
-            log.warn("Polling de eventos pulado: sem token válido.");
+        String token;
+        try {
+            token = authService.getValidToken();
+        } catch (RuntimeException e) {
+            log.warn("Polling de eventos pulado: não foi possível obter um token válido ({}).", e.getMessage());
             return;
         }
 

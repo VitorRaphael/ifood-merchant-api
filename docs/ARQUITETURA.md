@@ -169,6 +169,15 @@ referência rápida pra consultar sozinho sem precisar reler o código inteiro.
             mais chamar `/api/auth/autenticar` manualmente no dia a dia.
 - [ ] **Fase 7 — Qualidade**: tratamento de erro, testes automatizados, documentação
       OpenAPI/Swagger.
+      - [x] Tratamento de erro centralizado: pacote `exception` com `IFoodApiException`,
+            `TokenIndisponivelException`, `VendaNaoEncontradaException` e um
+            `GlobalExceptionHandler` (`@RestControllerAdvice`) que traduz cada uma pro
+            status HTTP certo (404, 409, 429, 502, 503) com um formato de erro único
+            (`ErroResposta`) em toda a API — antes, qualquer exceção virava o erro genérico
+            500 padrão do Spring, sem diferenciar a causa real. Testado ao vivo (venda
+            inexistente → 404 correto).
+      - [ ] Testes automatizados.
+      - [ ] Documentação OpenAPI/Swagger.
 
 ## Segurança & configuração
 

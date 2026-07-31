@@ -1,5 +1,6 @@
 package com.vitorraphael.ifood.merchant.api.service;
 
+import com.vitorraphael.ifood.merchant.api.exception.IFoodApiException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +28,6 @@ public class IFoodMerchantService {
 
     private String executarGet(String url) {
         String token = authService.getValidToken();
-        if (token == null) {
-            throw new IllegalStateException("Sem token válido. Chame /api/auth/autenticar primeiro.");
-        }
 
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
@@ -46,7 +44,7 @@ public class IFoodMerchantService {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             return tratarResposta(response);
         } catch (java.io.IOException | InterruptedException e) {
-            throw new RuntimeException("Falha de conexão com o iFood: " + e.getMessage(), e);
+            throw new IFoodApiException(0, "Falha de conexão com o iFood: " + e.getMessage(), e);
         }
     }
 
@@ -57,30 +55,27 @@ public class IFoodMerchantService {
             return response.body();
         }
         if (status == 401) {
-            throw new RuntimeException("Token inválido ou expirado. Autentique novamente.");
+            throw new IFoodApiException(status, "Token inválido ou expirado junto ao iFood.");
         }
         if (status == 403) {
-            throw new RuntimeException("Sem permissão para acessar essa loja.");
+            throw new IFoodApiException(status, "Sem permissão para acessar essa loja.");
         }
         if (status == 409) {
-            throw new RuntimeException("Conflito: essa operação esbarra em algo que já existe (ex. pausa sobreposta a um horário existente).");
+            throw new IFoodApiException(status, "Conflito: essa operação esbarra em algo que já existe (ex. pausa sobreposta a um horário existente).");
         }
         if (status == 429) {
             String retryAfter = Optional.ofNullable(response.headers().firstValue("Retry-After").orElse(null))
                     .orElse("alguns segundos");
-            throw new RuntimeException("Limite de requisições atingido. Tente novamente em " + retryAfter + ".");
+            throw new IFoodApiException(status, "Limite de requisições atingido. Tente novamente em " + retryAfter + ".");
         }
         if (status >= 500) {
-            throw new RuntimeException("O iFood está com problemas no momento (status " + status + ").");
+            throw new IFoodApiException(status, "O iFood está com problemas no momento (status " + status + ").");
         }
-        throw new RuntimeException("iFood recusou o pedido [" + status + "]: " + response.body());
+        throw new IFoodApiException(status, "iFood recusou o pedido [" + status + "]: " + response.body());
     }
 
     private String executarPut(String url, String corpoJson) {
         String token = authService.getValidToken();
-        if (token == null) {
-            throw new IllegalStateException("Sem token válido. Chame /api/auth/autenticar primeiro.");
-        }
 
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
@@ -98,15 +93,12 @@ public class IFoodMerchantService {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             return tratarResposta(response);
         } catch (java.io.IOException | InterruptedException e) {
-            throw new RuntimeException("Falha de conexão com o iFood: " + e.getMessage(), e);
+            throw new IFoodApiException(0, "Falha de conexão com o iFood: " + e.getMessage(), e);
         }
     }
 
     private String executarPost(String url, String corpoJson) {
         String token = authService.getValidToken();
-        if (token == null) {
-            throw new IllegalStateException("Sem token válido. Chame /api/auth/autenticar primeiro.");
-        }
 
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
@@ -124,15 +116,12 @@ public class IFoodMerchantService {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             return tratarResposta(response);
         } catch (java.io.IOException | InterruptedException e) {
-            throw new RuntimeException("Falha de conexão com o iFood: " + e.getMessage(), e);
+            throw new IFoodApiException(0, "Falha de conexão com o iFood: " + e.getMessage(), e);
         }
     }
 
     private String executarDelete(String url) {
         String token = authService.getValidToken();
-        if (token == null) {
-            throw new IllegalStateException("Sem token válido. Chame /api/auth/autenticar primeiro.");
-        }
 
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
@@ -149,7 +138,7 @@ public class IFoodMerchantService {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             return tratarResposta(response);
         } catch (java.io.IOException | InterruptedException e) {
-            throw new RuntimeException("Falha de conexão com o iFood: " + e.getMessage(), e);
+            throw new IFoodApiException(0, "Falha de conexão com o iFood: " + e.getMessage(), e);
         }
     }
 
