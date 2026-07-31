@@ -7,10 +7,12 @@
 
 const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const INTERVALO_ATUALIZACAO_MS = 30000;
 
 const state = {
     inicio: null,
     fim: null,
+    carregando: false,
 };
 
 /* ---------------------------------------------------------------------
@@ -633,37 +635,50 @@ function renderizarHistorico(vendas) {
  * ========================================================================= */
 
 async function carregarPainel(inicioIso, fimIso) {
+    // evita empilhar buscas se a rodada anterior (manual ou automatica) ainda estiver em andamento
+    if (state.carregando) {
+        return;
+    }
+    state.carregando = true;
+    tooltip.ocultar();
     ocultarErro();
     state.inicio = inicioIso;
     state.fim = fimIso;
 
-    const anterior = calcularPeriodoAnterior(inicioIso, fimIso);
+    try {
+        const anterior = calcularPeriodoAnterior(inicioIso, fimIso);
 
-    const [vendasResultado, resumoResultado, resumoAnteriorResultado, rankingResultado] = await Promise.allSettled([
-        buscarJson(`/api/vendas?inicio=${inicioIso}&fim=${fimIso}`),
-        buscarJson(`/api/financeiro/resumo?inicio=${inicioIso}&fim=${fimIso}`),
-        buscarJson(`/api/financeiro/resumo?inicio=${anterior.inicio}&fim=${anterior.fim}`),
-        buscarJson(`/api/vendas/ranking-produtos?inicio=${inicioIso}&fim=${fimIso}`),
-    ]);
+        const [vendasResultado, resumoResultado, resumoAnteriorResultado, rankingResultado] = await Promise.allSettled([
+            buscarJson(`/api/vendas?inicio=${inicioIso}&fim=${fimIso}`),
+            buscarJson(`/api/financeiro/resumo?inicio=${inicioIso}&fim=${fimIso}`),
+            buscarJson(`/api/financeiro/resumo?inicio=${anterior.inicio}&fim=${anterior.fim}`),
+            buscarJson(`/api/vendas/ranking-produtos?inicio=${inicioIso}&fim=${fimIso}`),
+        ]);
 
-    const falhas = [vendasResultado, resumoResultado, resumoAnteriorResultado, rankingResultado]
-        .filter((r) => r.status === 'rejected');
-    if (falhas.length > 0) {
-        mostrarErro(`Não foi possível carregar tudo: ${falhas[0].reason.message}`);
+        const falhas = [vendasResultado, resumoResultado, resumoAnteriorResultado, rankingResultado]
+            .filter((r) => r.status === 'rejected');
+        if (falhas.length > 0) {
+            mostrarErro(`Não foi possível carregar tudo: ${falhas[0].reason.message}`);
+        }
+
+        const vendas = vendasResultado.status === 'fulfilled' ? vendasResultado.value : [];
+        const resumo = resumoResultado.status === 'fulfilled'
+            ? resumoResultado.value
+            : { totalVendas: 0, valorBrutoTotal: 0, valorLiquidoTotal: 0, comissaoTotal: 0 };
+        const resumoAnterior = resumoAnteriorResultado.status === 'fulfilled' ? resumoAnteriorResultado.value : null;
+        const ranking = rankingResultado.status === 'fulfilled' ? rankingResultado.value : [];
+
+        renderizarKPIs(resumo, resumoAnterior);
+        renderizarGraficoVendasPorDia(agruparVendasPorDia(vendas, inicioIso, fimIso));
+        renderizarRanking(ranking);
+        renderizarHorarioPico(vendas);
+        renderizarHistorico(vendas);
+
+        document.getElementById('ultima-atualizacao').textContent =
+            `Atualizado às ${new Date().toLocaleTimeString('pt-BR')}`;
+    } finally {
+        state.carregando = false;
     }
-
-    const vendas = vendasResultado.status === 'fulfilled' ? vendasResultado.value : [];
-    const resumo = resumoResultado.status === 'fulfilled'
-        ? resumoResultado.value
-        : { totalVendas: 0, valorBrutoTotal: 0, valorLiquidoTotal: 0, comissaoTotal: 0 };
-    const resumoAnterior = resumoAnteriorResultado.status === 'fulfilled' ? resumoAnteriorResultado.value : null;
-    const ranking = rankingResultado.status === 'fulfilled' ? rankingResultado.value : [];
-
-    renderizarKPIs(resumo, resumoAnterior);
-    renderizarGraficoVendasPorDia(agruparVendasPorDia(vendas, inicioIso, fimIso));
-    renderizarRanking(ranking);
-    renderizarHorarioPico(vendas);
-    renderizarHistorico(vendas);
 }
 
 /* =========================================================================
@@ -721,6 +736,12 @@ function iniciar() {
 
     configurarToggleTabela();
     aplicarPreset('7d');
+
+    // atualizacao automatica em segundo plano — sempre re-busca o MESMO periodo que
+    // esta selecionado no momento (state.inicio/state.fim), sem mexer no filtro do usuario
+    setInterval(() => {
+        carregarPainel(state.inicio, state.fim);
+    }, INTERVALO_ATUALIZACAO_MS);
 }
 
 document.addEventListener('DOMContentLoaded', iniciar);
