@@ -43,7 +43,8 @@ iFood Merchant API (OAuth2 · Eventos · Financeiro)
 | Campo         | Tipo               | Descrição                                  |
 |---------------|---------------------|---------------------------------------------|
 | idVenda       | String · PK         | ID do pedido, vindo do iFood                |
-| dataVenda     | LocalDate           | Data em que o pedido foi feito              |
+| dataVenda     | LocalDate           | Data em que o pedido foi feito (fuso America/Sao_Paulo) |
+| horaVenda     | Integer (0-23)      | Hora local do pedido — usada pro mapa de horário de pico |
 | valorBruto    | BigDecimal          | Total do pedido, sem descontos              |
 | valorLiquido  | BigDecimal          | Valor que efetivamente cai na conta         |
 | taxaEntrega   | BigDecimal          | Taxa de entrega repassada/cobrada           |
@@ -121,8 +122,9 @@ referência rápida pra consultar sozinho sem precisar reler o código inteiro.
 | GET    | /api/loja/{id}               | Detalhes completos de uma loja                              | 4    | ✅ Implementado (testado) |
 | GET/PUT| /api/loja/horarios          | Consultar/atualizar horários de funcionamento                | 4    | ✅ Implementado (testado) |
 | GET/POST/DELETE | /api/loja/pausas   | Consultar/criar/remover pausas da loja                       | 4    | ✅ Implementado (testado) |
-| GET    | /api/vendas                 | Lista vendas, com filtro por período                        | 5    | ✅ Implementado (testado) |
-| GET    | /api/vendas/{id}             | Detalhe de uma venda e seus pagamentos                      | 5    | ✅ Implementado (testado) |
+| GET    | /api/vendas                 | Lista vendas, com filtro opcional por período (`inicio`/`fim`) | 5    | ✅ Implementado (testado) |
+| GET    | /api/vendas/{id}             | Detalhe de uma venda e seus pagamentos/itens                | 5    | ✅ Implementado (testado) |
+| GET    | /api/vendas/ranking-produtos | Ranking de produtos por quantidade vendida entre duas datas | 8    | ✅ Implementado (testado) |
 | POST   | /api/financeiro/sincronizar | Busca liquidações no iFood e salva como `Repasse`            | 6    | ✅ Implementado (bloqueado no iFood — ticket 31017178) |
 | GET    | /api/financeiro/repasses    | Lista os repasses recebidos do iFood                        | 6    | ✅ Implementado (testado, retorna vazio até o ticket resolver) |
 | GET    | /api/financeiro/resumo      | Soma bruto/líquido/comissão entre duas datas (baseado em `Venda`) | 6    | ✅ Implementado (testado) |
@@ -203,6 +205,16 @@ referência rápida pra consultar sozinho sem precisar reler o código inteiro.
             `/swagger-ui/index.html`, JSON da spec em `/v3/api-docs` — gerado automaticamente
             a partir dos Controllers existentes, sem anotação manual por endpoint. Testado
             ao vivo, confirmado funcionando.
+- [ ] **Fase 8 — Front-end**: painel visual (dashboard) servido pela própria aplicação
+      Spring Boot (`src/main/resources/static`), sem servidor separado — resolve o
+      problema que travou uma tentativa anterior em C (three-way sync entre iFood, API e
+      página local). Consome só os endpoints já existentes (`/api/vendas`,
+      `/api/vendas/ranking-produtos`, `/api/financeiro/resumo`).
+      - [x] Backend preparado: `Venda.horaVenda` (fuso America/Sao_Paulo) e
+            `GET /api/vendas/ranking-produtos` para viabilizar o mapa de horário de pico e o
+            ranking de produtos no dashboard.
+      - [ ] HTML/CSS/JS do dashboard (KPIs, gráfico de vendas por dia, ranking de produtos,
+            mapa de calor de horário de pico, histórico de pedidos).
 
 ## Segurança & configuração
 

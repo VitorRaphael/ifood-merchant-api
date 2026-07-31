@@ -3,6 +3,7 @@ package com.vitorraphael.ifood.merchant.api.service;
 import com.vitorraphael.ifood.merchant.api.exception.VendaNaoEncontradaException;
 import com.vitorraphael.ifood.merchant.api.model.ResumoFinanceiro;
 import com.vitorraphael.ifood.merchant.api.model.Venda;
+import com.vitorraphael.ifood.merchant.api.repository.ItemVendaRepository;
 import com.vitorraphael.ifood.merchant.api.repository.VendaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,9 @@ class VendaServiceTest {
 
     @Mock
     private VendaRepository vendaRepository;
+
+    @Mock
+    private ItemVendaRepository itemVendaRepository;
 
     @InjectMocks
     private VendaService vendaService;

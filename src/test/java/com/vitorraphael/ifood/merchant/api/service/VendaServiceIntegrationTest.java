@@ -70,7 +70,9 @@ class VendaServiceIntegrationTest {
         Venda venda = vendaService.processarPedido(PEDIDO_REAL_JSON);
 
         assertThat(venda.getIdVenda()).isEqualTo("c03822ff-b417-4625-a29d-e05183383dae");
+        // "createdAt" vem em UTC (23:14); loja opera em America/Sao_Paulo (UTC-3) = 20:14, mesmo dia
         assertThat(venda.getDataVenda()).isEqualTo(LocalDate.of(2026, 7, 30));
+        assertThat(venda.getHoraVenda()).isEqualTo(20);
         assertThat(venda.getPagamentos()).hasSize(2);
         assertThat(venda.getItens()).hasSize(2);
 
@@ -89,5 +91,18 @@ class VendaServiceIntegrationTest {
         // confirma que persistiu de verdade no banco, nao so em memoria
         Venda recarregada = vendaRepository.findById(venda.getIdVenda()).orElseThrow();
         assertThat(recarregada.getItens()).hasSize(2);
+    }
+
+    @Test
+    @Transactional
+    void gerarRankingProdutos_deveAgruparPorNomeEOrdenarPorQuantidade() {
+        vendaService.processarPedido(PEDIDO_REAL_JSON);
+
+        var ranking = vendaService.gerarRankingProdutos(LocalDate.of(2026, 7, 1), LocalDate.of(2026, 7, 31));
+
+        assertThat(ranking).hasSize(2);
+        assertThat(ranking.get(0).nome()).contains("PRODUTO 1");
+        assertThat(ranking.get(0).quantidadeTotal()).isEqualTo(1L);
+        assertThat(ranking.get(0).valorTotal()).isEqualByComparingTo("5.00");
     }
 }

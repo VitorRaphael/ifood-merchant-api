@@ -25,6 +25,11 @@ public class Venda {
     @Column(name = "data_venda", nullable = false)
     private LocalDate dataVenda;
 
+    // Nullable de propósito: linhas gravadas antes desse campo existir não têm esse dado
+    // (e o SQLite nem aceitaria adicionar coluna NOT NULL numa tabela que já tem linhas).
+    @Column(name = "hora_venda")
+    private Integer horaVenda;
+
     @Column(name = "valor_bruto", nullable = false)
     private BigDecimal valorBruto;
 
