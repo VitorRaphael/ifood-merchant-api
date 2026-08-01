@@ -3,107 +3,421 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel — iFood Merchant</title>
+    <meta name="color-scheme" content="light dark">
+    <title>Visão Geral — Painel da Loja</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="app">
-        <header class="app-header">
-            <div class="app-header__title">
-                <h1>Painel da Loja</h1>
-                <p class="app-header__subtitle">Vendas, produtos e financeiro em um só lugar</p>
-                <p class="app-header__updated" id="ultima-atualizacao" aria-live="polite"></p>
+
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<!--
+  Recolher a sidebar sem uma linha de JavaScript: o checkbox fica antes de .app e o CSS
+  reage com `#sidebar-collapse:checked ~ .app`. Sem estado no JS, nada para quebrar.
+-->
+<input type="checkbox" id="sidebar-collapse" class="sidebar-toggle sr-only" aria-label="Recolher o menu lateral">
+
+<div class="app">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar" aria-label="Navegação principal">
+
+        <div class="sidebar__top">
+            <span class="brand">
+                <span class="brand__mark" aria-hidden="true">
+                    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m2 7 1.5-4h17L22 7"/>
+                        <path d="M2 7h20v1.5a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/>
+                        <path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/>
+                    </svg>
+                </span>
+                <span class="brand__word sidebar__expanded">gestor<span class="brand__dot" aria-hidden="true">.</span></span>
+            </span>
+
+            <label class="icon-button sidebar__collapse" for="sidebar-collapse" title="Recolher / expandir o menu">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M9 3v18"/>
+                    <path d="m16 15-3-3 3-3"/>
+                </svg>
+                <span class="sr-only">Recolher ou expandir o menu lateral</span>
+            </label>
+        </div>
+
+        <!-- Status real: alimentado por GET /api/status no bloco de script do rodapé. -->
+        <div class="api-status" id="api-status" data-state="checking" title="Conexão com a API local do painel">
+            <span class="api-status__dot" aria-hidden="true"></span>
+            <span class="api-status__text sidebar__expanded" id="api-status-text" aria-live="polite">Verificando conexão…</span>
+        </div>
+
+        <nav class="nav">
+            <!-- Cada rótulo mora no mesmo .nav__group da sua lista: o espaçamento
+                 vem só de `gap`, sem margem somando com o gap do pai. -->
+            <div class="nav__group">
+            <p class="nav__label sidebar__expanded">Início</p>
+            <ul class="nav__list">
+                <li>
+                    <span class="nav__item nav__item--active" aria-current="page" title="Visão Geral">
+                        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="3" width="7" height="9" rx="1"/>
+                            <rect x="14" y="3" width="7" height="5" rx="1"/>
+                            <rect x="14" y="12" width="7" height="9" rx="1"/>
+                            <rect x="3" y="16" width="7" height="5" rx="1"/>
+                        </svg>
+                        <span class="nav__text sidebar__expanded">Visão Geral</span>
+                    </span>
+                </li>
+            </ul>
             </div>
-            <div id="status-banner" class="status-banner status-banner--hidden" role="alert"></div>
+
+            <div class="nav__group">
+            <p class="nav__label sidebar__expanded">Módulos</p>
+            <ul class="nav__list">
+                <li>
+                    <span class="nav__item nav__item--soon" aria-disabled="true" title="Gestão de Pedidos — ainda não disponível">
+                        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+                            <path d="M3 6h18"/>
+                            <path d="M16 10a4 4 0 0 1-8 0"/>
+                        </svg>
+                        <span class="nav__text sidebar__expanded">Gestão de Pedidos</span>
+                        <span class="sr-only"> (em breve)</span>
+                        <span class="badge sidebar__expanded" aria-hidden="true">em breve</span>
+                    </span>
+                </li>
+                <li>
+                    <span class="nav__item nav__item--soon" aria-disabled="true" title="Cardápio &amp; Opções — ainda não disponível">
+                        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 2v7a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V2"/>
+                            <path d="M6 11v11"/>
+                            <path d="M20 15V2a4 4 0 0 0-3 3.9V13a2 2 0 0 0 2 2h1Zm0 0v7"/>
+                        </svg>
+                        <span class="nav__text sidebar__expanded">Cardápio &amp; Opções</span>
+                        <span class="sr-only"> (em breve)</span>
+                        <span class="badge sidebar__expanded" aria-hidden="true">em breve</span>
+                    </span>
+                </li>
+                <li>
+                    <span class="nav__item nav__item--soon" aria-disabled="true" title="Relatórios e Financeiro — ainda não disponível">
+                        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 3v16a2 2 0 0 0 2 2h16"/>
+                            <rect x="7" y="12" width="3" height="5" rx="1"/>
+                            <rect x="12" y="8" width="3" height="9" rx="1"/>
+                            <rect x="17" y="5" width="3" height="12" rx="1"/>
+                        </svg>
+                        <span class="nav__text sidebar__expanded">Relatórios e Financeiro</span>
+                        <span class="sr-only"> (em breve)</span>
+                        <span class="badge sidebar__expanded" aria-hidden="true">em breve</span>
+                    </span>
+                </li>
+            </ul>
+            </div>
+
+            <div class="nav__group">
+            <p class="nav__label sidebar__expanded">Utilitários</p>
+            <ul class="nav__list">
+                <li>
+                    <span class="nav__item nav__item--soon" aria-disabled="true" title="Configurações — ainda não disponível">
+                        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12.5 2h-1a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.5.9a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.6a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.5.9a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7V20a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.5-.9a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.6a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.5-.9a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2Z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <span class="nav__text sidebar__expanded">Configurações</span>
+                        <span class="sr-only"> (em breve)</span>
+                        <span class="badge sidebar__expanded" aria-hidden="true">em breve</span>
+                    </span>
+                </li>
+            </ul>
+            </div>
+        </nav>
+
+        <div class="sidebar__footer">
+            <div class="profile">
+                <span class="profile__avatar" aria-hidden="true">ML</span>
+                <span class="profile__info sidebar__expanded">
+                    <span class="profile__name">Minha loja</span>
+                    <span class="profile__meta">Painel local · iFood</span>
+                </span>
+            </div>
+            <p class="profile__hint sidebar__expanded">Perfil da loja e preferências chegam em uma próxima versão.</p>
+        </div>
+    </aside>
+
+    <!-- ==================== ÁREA PRINCIPAL ==================== -->
+    <div class="main">
+
+        <header class="topbar">
+            <nav class="breadcrumb" aria-label="Trilha de navegação">
+                <ol class="breadcrumb__list">
+                    <li class="breadcrumb__item">
+                        <svg class="ico ico--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+                            <path d="M3 10a2 2 0 0 1 .7-1.5l7-6a2 2 0 0 1 2.6 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        </svg>
+                        <span>Painel</span>
+                    </li>
+                    <li class="breadcrumb__sep" aria-hidden="true">
+                        <svg class="ico ico--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m9 18 6-6-6-6"/>
+                        </svg>
+                    </li>
+                    <li class="breadcrumb__item breadcrumb__item--current"><span aria-current="page">Visão Geral</span></li>
+                </ol>
+            </nav>
+
+            <div class="topbar__actions">
+                <span class="topbar__pill">
+                    <svg class="ico ico--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 12a9 9 0 0 1 9-9 9.8 9.8 0 0 1 6.7 2.7L21 8"/>
+                        <path d="M21 3v5h-5"/>
+                        <path d="M21 12a9 9 0 0 1-9 9 9.8 9.8 0 0 1-6.7-2.7L3 16"/>
+                        <path d="M8 16H3v5"/>
+                    </svg>
+                    Atualiza sozinho
+                </span>
+                <span class="topbar__link topbar__link--soon" title="Central de ajuda — em breve">
+                    <svg class="ico ico--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/>
+                        <path d="M12 17h.01"/>
+                    </svg>
+                    Ajuda
+                </span>
+                <span class="avatar avatar--sm" title="Minha loja" aria-hidden="true">ML</span>
+            </div>
         </header>
 
-        <section class="filters" aria-label="Filtro de período">
-            <div class="filters__presets" id="filtro-presets" role="group" aria-label="Período">
-                <button type="button" class="chip" data-preset="hoje">Hoje</button>
-                <button type="button" class="chip" data-preset="7d">Últimos 7 dias</button>
-                <button type="button" class="chip" data-preset="30d">Últimos 30 dias</button>
-                <button type="button" class="chip" data-preset="mes">Mês atual</button>
-            </div>
-            <div class="filters__custom">
-                <label class="filters__custom-field">
-                    <span>De</span>
-                    <input type="date" id="filtro-inicio">
-                </label>
-                <label class="filters__custom-field">
-                    <span>Até</span>
-                    <input type="date" id="filtro-fim">
-                </label>
-                <button type="button" class="chip chip--outline" id="filtro-aplicar">Aplicar</button>
-            </div>
-        </section>
+        <!-- tabindex="-1": sem ele, o skip-link só rola a página em navegadores
+             que não implementam o "sequential focus navigation starting point". -->
+        <main class="content" id="conteudo" tabindex="-1">
 
-        <section class="kpi-row" id="kpi-row" aria-label="Indicadores do período">
-            <!-- stat tiles inseridos via JS -->
-        </section>
-
-        <section class="chart-card" id="card-vendas-por-dia" aria-label="Vendas por dia">
-            <div class="chart-card__head">
-                <div>
-                    <h2>Vendas por dia</h2>
-                    <p class="chart-card__caption">Faturamento bruto no período selecionado</p>
+            <div class="page-head">
+                <div class="page-head__text">
+                    <h1 class="page-head__title">Visão Geral</h1>
+                    <p class="page-head__subtitle">Vendas, produtos e horários de pico da sua loja no iFood, em um só lugar.</p>
                 </div>
-                <button type="button" class="link-button" data-toggle-table="vendas-por-dia">Ver como tabela</button>
+                <div class="page-head__meta">
+                    <svg class="ico ico--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                    <span class="page-head__meta-text">
+                        <span class="page-head__meta-title">Atualização automática a cada 30s</span>
+                        <span class="page-head__meta-value" id="ultima-atualizacao" aria-live="polite"></span>
+                    </span>
+                </div>
             </div>
-            <div class="chart-card__body">
-                <div id="vendas-por-dia-chart" class="chart-surface"></div>
-                <div id="vendas-por-dia-table" class="table-view table-view--hidden"></div>
-            </div>
-            <p id="vendas-por-dia-empty" class="empty-state empty-state--hidden">Nenhuma venda nesse período.</p>
-        </section>
 
-        <section class="chart-grid">
-            <div class="chart-card" id="card-ranking" aria-label="Produtos mais vendidos">
-                <div class="chart-card__head">
-                    <div>
-                        <h2>Produtos mais vendidos</h2>
-                        <p class="chart-card__caption">Por quantidade, no período selecionado</p>
+            <div id="status-banner" class="status-banner status-banner--hidden" role="alert"></div>
+
+            <section class="filters" aria-label="Filtro de período">
+                <div class="filters__group">
+                    <span class="filters__label">Período</span>
+                    <div class="filters__presets" id="filtro-presets" role="group" aria-label="Períodos rápidos">
+                        <!-- aria-pressed é espelhado a partir de .chip--active pelo bloco
+                             de script do rodapé (o app.js só mexe na classe). -->
+                        <button type="button" class="chip" data-preset="hoje" aria-pressed="false">Hoje</button>
+                        <button type="button" class="chip" data-preset="7d" aria-pressed="false">Últimos 7 dias</button>
+                        <button type="button" class="chip" data-preset="30d" aria-pressed="false">Últimos 30 dias</button>
+                        <button type="button" class="chip" data-preset="mes" aria-pressed="false">Mês atual</button>
                     </div>
-                    <button type="button" class="link-button" data-toggle-table="ranking">Ver como tabela</button>
                 </div>
-                <div class="chart-card__body">
-                    <div id="ranking-chart" class="chart-surface"></div>
-                    <div id="ranking-table" class="table-view table-view--hidden"></div>
-                </div>
-                <p id="ranking-empty" class="empty-state empty-state--hidden">Nenhum produto vendido nesse período.</p>
-            </div>
-
-            <div class="chart-card" id="card-horario-pico" aria-label="Horário de pico">
-                <div class="chart-card__head">
-                    <div>
-                        <h2>Horário de pico</h2>
-                        <p class="chart-card__caption">Quantidade de pedidos por dia da semana e hora</p>
+                <div class="filters__custom">
+                    <div class="field">
+                        <label class="field__label" for="filtro-inicio">De</label>
+                        <input class="field__input" type="date" id="filtro-inicio">
                     </div>
-                    <button type="button" class="link-button" data-toggle-table="horario-pico">Ver como tabela</button>
+                    <div class="field">
+                        <label class="field__label" for="filtro-fim">Até</label>
+                        <input class="field__input" type="date" id="filtro-fim">
+                    </div>
+                    <button type="button" class="button button--primary" id="filtro-aplicar">Aplicar</button>
                 </div>
-                <div class="chart-card__body">
-                    <div id="horario-pico-chart" class="chart-surface"></div>
-                    <div id="horario-pico-table" class="table-view table-view--hidden"></div>
-                </div>
-                <p id="horario-pico-empty" class="empty-state empty-state--hidden">Nenhum pedido nesse período.</p>
-            </div>
-        </section>
+            </section>
 
-        <section class="chart-card" aria-label="Histórico de pedidos">
-            <div class="chart-card__head">
-                <div>
-                    <h2>Histórico de pedidos</h2>
-                    <p class="chart-card__caption">Pedidos do período selecionado, mais recentes primeiro</p>
+            <section class="section" aria-labelledby="titulo-indicadores">
+                <div class="section__head">
+                    <h2 class="section__title" id="titulo-indicadores">Indicadores do período</h2>
+                    <p class="section__caption">Comparados automaticamente com o período anterior de mesma duração.</p>
                 </div>
+
+                <!-- #kpi-row é limpo e repopulado pelo app.js: nada estático aqui dentro. -->
+                <div class="kpi-row" id="kpi-row" role="group" aria-label="Indicadores do período"></div>
+
+                <p class="section__note">
+                    “Comissão iFood” fica em R$&nbsp;0,00 enquanto o backend gravar valor líquido igual ao bruto.
+                </p>
+            </section>
+
+            <section class="card" id="card-vendas-por-dia" aria-labelledby="titulo-vendas-por-dia">
+                <div class="card__head">
+                    <div class="card__heading">
+                        <h2 class="card__title" id="titulo-vendas-por-dia">Vendas por dia</h2>
+                        <p class="card__caption">Faturamento bruto no período selecionado</p>
+                    </div>
+                    <div class="card__actions">
+                        <button type="button" class="ghost-button" data-toggle-table="vendas-por-dia">Ver como tabela</button>
+                    </div>
+                </div>
+                <div class="card__body">
+                    <div id="vendas-por-dia-chart" class="chart-surface"></div>
+                    <div id="vendas-por-dia-table" class="table-view table-view--hidden"></div>
+                </div>
+                <p id="vendas-por-dia-empty" class="empty-state empty-state--hidden">Nenhuma venda nesse período.</p>
+            </section>
+
+            <div class="card-grid">
+                <section class="card" id="card-ranking" aria-labelledby="titulo-ranking">
+                    <div class="card__head">
+                        <div class="card__heading">
+                            <h2 class="card__title" id="titulo-ranking">Produtos mais vendidos</h2>
+                            <p class="card__caption">Top 8 por quantidade — a tabela mostra a lista completa</p>
+                        </div>
+                        <div class="card__actions">
+                            <button type="button" class="ghost-button" data-toggle-table="ranking">Ver como tabela</button>
+                        </div>
+                    </div>
+                    <div class="card__body">
+                        <div id="ranking-chart" class="chart-surface"></div>
+                        <div id="ranking-table" class="table-view table-view--hidden"></div>
+                    </div>
+                    <p id="ranking-empty" class="empty-state empty-state--hidden">Nenhum produto vendido nesse período.</p>
+                </section>
+
+                <section class="card" id="card-horario-pico" aria-labelledby="titulo-horario-pico">
+                    <div class="card__head">
+                        <div class="card__heading">
+                            <h2 class="card__title" id="titulo-horario-pico">Horário de pico</h2>
+                            <p class="card__caption">Pedidos por dia da semana e hora</p>
+                        </div>
+                        <div class="card__actions">
+                            <button type="button" class="ghost-button" data-toggle-table="horario-pico">Ver como tabela</button>
+                        </div>
+                    </div>
+                    <div class="card__body">
+                        <div id="horario-pico-chart" class="chart-surface"></div>
+                        <div id="horario-pico-table" class="table-view table-view--hidden"></div>
+                    </div>
+                    <p id="horario-pico-empty" class="empty-state empty-state--hidden">Nenhum pedido nesse período.</p>
+                </section>
             </div>
-            <div class="chart-card__body">
-                <div id="historico-table" class="table-view"></div>
-            </div>
-            <p id="historico-empty" class="empty-state empty-state--hidden">Nenhum pedido nesse período.</p>
-        </section>
+
+            <section class="card" id="card-historico" aria-labelledby="titulo-historico">
+                <div class="card__head">
+                    <div class="card__heading">
+                        <h2 class="card__title" id="titulo-historico">Histórico de pedidos</h2>
+                        <p class="card__caption">Pedidos do período selecionado, mais recentes primeiro</p>
+                    </div>
+                </div>
+                <div class="card__body">
+                    <div id="historico-table" class="table-view"></div>
+                </div>
+                <p id="historico-empty" class="empty-state empty-state--hidden">Nenhum pedido nesse período.</p>
+            </section>
+
+            <footer class="page-foot">
+                <p>Painel local · dados vindos da iFood Merchant API através da sua própria API Spring Boot.</p>
+            </footer>
+        </main>
     </div>
+</div>
 
-    <div id="chart-tooltip" class="chart-tooltip" role="tooltip" hidden></div>
+<!--
+  Gradientes de referência para os SVGs desenhados pelo app.js.
+  O CSS aplica `fill: url(#...)` por cima dos atributos de preenchimento — nada aqui
+  exige mudança no JavaScript, e se o JS mudar o desenho volta ao azul chapado.
+-->
+<svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+        <linearGradient id="gradiente-area" x1="0" y1="0" x2="0" y2="1">
+            <stop class="grad-area__topo" offset="0"/>
+            <stop class="grad-area__base" offset="1"/>
+        </linearGradient>
+        <linearGradient id="gradiente-barra" x1="0" y1="0" x2="1" y2="0">
+            <stop class="grad-barra__ini" offset="0"/>
+            <stop class="grad-barra__fim" offset="1"/>
+        </linearGradient>
+    </defs>
+</svg>
 
-    <script src="js/app.js"></script>
+<!-- Tooltip compartilhado: precisa existir ANTES de js/app.js e FORA de qualquer container dinâmico. -->
+<div id="chart-tooltip" class="chart-tooltip" role="tooltip" hidden></div>
+
+<script src="js/app.js"></script>
+
+<script>
+/*
+ * Indicador de saúde da API local (GET /api/status).
+ * Bloco isolado e removível: não lê nem escreve nenhum id/classe usado por js/app.js.
+ * Existe para que o ponto verde da sidebar diga a verdade em vez de ser decoração fixa.
+ */
+(function () {
+    'use strict';
+
+    var raiz = document.getElementById('api-status');
+    var texto = document.getElementById('api-status-text');
+    if (!raiz || !texto) {
+        return;
+    }
+
+    var estadoAtual = null;
+
+    function aplicar(estado, rotulo) {
+        if (estado === estadoAtual) {
+            return;
+        }
+        estadoAtual = estado;
+        raiz.setAttribute('data-state', estado);
+        raiz.title = rotulo;
+        texto.textContent = rotulo;
+    }
+
+    function verificar() {
+        fetch('/api/status', { cache: 'no-store' })
+            .then(function (resposta) {
+                aplicar(resposta.ok ? 'online' : 'offline',
+                        resposta.ok ? 'API conectada' : 'API respondeu com erro');
+            })
+            .catch(function () {
+                aplicar('offline', 'API fora do ar');
+            });
+    }
+
+    verificar();
+    setInterval(verificar, 30000);
+}());
+
+/*
+ * Espelho de aria-pressed nos chips de período.
+ * O app.js só alterna a CLASSE .chip--active (e não pode ser tocado), então para
+ * o leitor de tela os quatro chips eram anunciados exatamente iguais — sem
+ * indicar qual período está ativo. Este observer converte o estado visual em
+ * estado semântico. Bloco isolado: não lê nem escreve nada que o app.js use.
+ */
+(function () {
+    'use strict';
+
+    var chips = document.querySelectorAll('#filtro-presets .chip');
+    if (!chips.length || typeof MutationObserver !== 'function') {
+        return;
+    }
+
+    function espelhar(chip) {
+        chip.setAttribute('aria-pressed', String(chip.classList.contains('chip--active')));
+    }
+
+    var observer = new MutationObserver(function (mutacoes) {
+        mutacoes.forEach(function (mutacao) {
+            espelhar(mutacao.target);
+        });
+    });
+
+    Array.prototype.forEach.call(chips, function (chip) {
+        espelhar(chip);
+        observer.observe(chip, { attributes: true, attributeFilter: ['class'] });
+    });
+}());
+</script>
+
 </body>
 </html>
