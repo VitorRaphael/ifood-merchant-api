@@ -37,3 +37,7 @@ tokens.json
 
 # Banco de dado sqLite
 *.db
+
+# Saida gerada pelo build-instalador.bat (jar + runtime Java embutido)
+dist-jar/
+instalador/

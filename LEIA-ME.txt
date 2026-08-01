@@ -1,0 +1,10 @@
+PAINEL IFOOD - COMO USAR
+
+1. De um duplo clique em "Painel iFood.exe" (nesta mesma pasta).
+2. Aguarde alguns segundos. O navegador vai abrir sozinho com o painel.
+3. Para fechar, feche a janela preta que abriu junto (ela e o servidor rodando).
+
+Nao precisa instalar nada, nao precisa mexer em mais nada.
+Se o navegador nao abrir sozinho, acesse manualmente: http://localhost:8080
+
+Duvidas: fale com quem te entregou este programa.
