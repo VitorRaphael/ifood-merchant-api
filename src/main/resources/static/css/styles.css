@@ -20,17 +20,19 @@
 :root {
     color-scheme: light;
 
-    /* --- Paleta bruta ------------------------------------------------------ */
-    --slate-50:  #f8fafc;
-    --slate-100: #f1f5f9;
-    --slate-200: #e2e8f0;
-    --slate-300: #cbd5e1;
-    --slate-400: #94a3b8;
-    --slate-500: #64748b;
-    --slate-600: #475569;
-    --slate-700: #334155;
-    --slate-800: #1e293b;
-    --slate-900: #0f172a;
+    /* --- Paleta bruta -------------------------------------------------------
+     * Cinza NEUTRO de verdade (zinc), não o "slate" azulado do benchmark original
+     * — era esse viés que fazia até texto/borda parecer "tudo meio azul". */
+    --neutral-50:  #fafafa;
+    --neutral-100: #f4f4f5;
+    --neutral-200: #e4e4e7;
+    --neutral-300: #d4d4d8;
+    --neutral-400: #a1a1aa;
+    --neutral-500: #71717a;
+    --neutral-600: #52525b;
+    --neutral-700: #3f3f46;
+    --neutral-800: #27272a;
+    --neutral-900: #18181b;
 
     --blue-50:  #eff6ff;
     --blue-100: #dbeafe;
@@ -47,27 +49,28 @@
     --rose-700: #be123c;
 
     /* --- Superfícies e texto ----------------------------------------------
-     * REGRA: fora deste bloco :root ninguém consome a paleta BRUTA (slate,
-     * blue, emerald, rose). O bloco dark só redefine a camada semântica, então
-     * quem furar essa regra fica travado no tema claro.
+     * REGRA: fora deste bloco :root ninguém consome a paleta BRUTA (neutral,
+     * blue, emerald, rose) — só a camada semântica abaixo (--text-primary,
+     * --surface-1 etc). Assim, pra reequilibrar cor no painel inteiro, basta
+     * mexer aqui.
      * --------------------------------------------------------------------- */
-    --page-plane:    var(--slate-50);
+    --page-plane:    var(--neutral-50);
     --surface-1:     #ffffff;      /* usado como stroke dos pontos do gráfico de linha */
-    --surface-2:     var(--slate-50);
+    --surface-2:     var(--neutral-50);
     --surface-nav:   #ffffff;
-    --surface-hover: var(--slate-100);
-    --surface-pop:   var(--slate-900);   /* fundo do tooltip flutuante */
+    --surface-hover: var(--neutral-100);
+    --surface-pop:   var(--neutral-900);   /* fundo do tooltip flutuante */
 
-    --text-primary:   var(--slate-900);
-    --text-secondary: var(--slate-600);
-    --text-muted:     var(--slate-500);  /* 4,8:1 sobre branco — texto de verdade */
-    --text-faint:     var(--slate-400);  /* SÓ decoração e micro-rótulo */
+    --text-primary:   var(--neutral-900);
+    --text-secondary: var(--neutral-600);
+    --text-muted:     var(--neutral-500);  /* 4,8:1 sobre branco — texto de verdade */
+    --text-faint:     var(--neutral-400);  /* SÓ decoração e micro-rótulo */
 
-    --border-subtle: var(--slate-200);
-    --border-strong: var(--slate-300);
-    --border-hover:  var(--slate-400);
-    --gridline:      var(--slate-200);
-    --baseline:      var(--slate-300);
+    --border-subtle: var(--neutral-200);
+    --border-strong: var(--neutral-300);
+    --border-hover:  var(--neutral-400);
+    --gridline:      var(--neutral-200);
+    --baseline:      var(--neutral-300);
 
     /* --- Marca / séries de dados ------------------------------------------ */
     --brand:        var(--blue-600);
@@ -142,58 +145,8 @@
     --transition: 140ms ease;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        color-scheme: dark;
-
-        --page-plane:    #0b0f17;
-        --surface-1:     #151a23;
-        --surface-2:     #11161e;
-        --surface-nav:   #121821;
-        --surface-hover: #1c2432;
-        --surface-pop:   #202836;
-
-        --text-primary:   #e9eef6;
-        --text-secondary: #9fadc0;
-        --text-muted:     #8b99ad;   /* ~5,6:1 sobre --surface-1 */
-        --text-faint:     #6d7b8e;
-
-        --border-subtle: #232c3a;
-        --border-strong: #2f3a4a;
-        --border-hover:  #3d4a5c;
-        --gridline:      #232c3a;
-        --baseline:      #334052;
-
-        --brand:        #60a5fa;
-        --brand-strong: #93c5fd;
-        --brand-soft:   rgba(59, 130, 246, 0.14);
-        --brand-line:   rgba(59, 130, 246, 0.28);
-        /* Azul claro pede texto ESCURO por cima: branco daria 2,55:1. */
-        --on-brand:     #0b1220;
-
-        --series-1:        #3b82f6;   /* HEX LITERAL — lido pelo app.js */
-        --series-1-strong: #60a5fa;
-        --series-1-soft:   #93c5fd;
-        --series-1-wash:   rgba(59, 130, 246, 0.16);
-
-        --good:      #34d399;
-        --good-soft: rgba(16, 185, 129, 0.14);
-        --good-line: rgba(16, 185, 129, 0.30);
-
-        --critical:      #fb7185;
-        --critical-soft: rgba(244, 63, 94, 0.14);
-        --critical-line: rgba(244, 63, 94, 0.30);
-
-        --ok-dot: #34d399;
-
-        --focus-ring: #60a5fa;
-
-        --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.30);
-        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32), 0 1px 3px rgba(0, 0, 0, 0.30);
-        --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.32), 0 6px 18px rgba(0, 0, 0, 0.34);
-        --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.55);
-    }
-}
+/* Sem @media (prefers-color-scheme: dark) de propósito: o painel é sempre
+ * claro, não importa o tema do Windows/navegador de quem está olhando. */
 
 /* =============================================================================
  * 2. RESET / BASE
@@ -875,12 +828,6 @@ img, svg {
     height: 18px;
     flex: none;
     background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23be123c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3'/><path d='M12 9v4'/><path d='M12 17h.01'/></svg>") no-repeat center / contain;
-}
-
-@media (prefers-color-scheme: dark) {
-    .status-banner::before {
-        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fb7185' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3'/><path d='M12 9v4'/><path d='M12 17h.01'/></svg>");
-    }
 }
 
 /* =============================================================================
@@ -1586,11 +1533,6 @@ img, svg {
     box-shadow: var(--shadow-pop);
 }
 
-@media (prefers-color-scheme: dark) {
-    .chart-tooltip {
-        border: 1px solid var(--border-strong);
-    }
-}
 
 .chart-tooltip strong {
     display: inline-block;

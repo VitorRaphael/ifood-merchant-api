@@ -278,18 +278,59 @@ function agruparVendasPorDia(vendas, inicioIso, fimIso) {
     for (const venda of vendas) {
         totais.set(venda.dataVenda, (totais.get(venda.dataVenda) ?? 0) + venda.valorBruto);
     }
-    return Array.from(totais.entries()).map(([data, total]) => ({ data, total }));
+    return Array.from(totais.entries()).map(([data, total]) => ({
+        chave: data,
+        total,
+        rotuloCurto: formatarDataCurta(data),
+        rotuloCompleto: formatarDataCompleta(data),
+    }));
 }
 
-function renderizarGraficoVendasPorDia(pontos) {
+// Com 1 dia só de período, "por dia" vira um ponto único e sem escala —
+// nesse caso trocamos a granularidade pra por hora (00h a 23h), que é o
+// recorte que faz sentido pra olhar "como foi o dia de hoje".
+function agruparVendasPorHora(vendas, diaIso) {
+    const totais = new Map();
+    for (let hora = 0; hora < 24; hora++) {
+        totais.set(hora, 0);
+    }
+    for (const venda of vendas) {
+        if (venda.dataVenda === diaIso && typeof venda.horaVenda === 'number') {
+            totais.set(venda.horaVenda, (totais.get(venda.horaVenda) ?? 0) + venda.valorBruto);
+        }
+    }
+    const diaCompleto = formatarDataCompleta(diaIso);
+    return Array.from(totais.entries()).map(([hora, total]) => ({
+        chave: hora,
+        total,
+        rotuloCurto: `${String(hora).padStart(2, '0')}h`,
+        rotuloCompleto: `${String(hora).padStart(2, '0')}h–${String((hora + 1) % 24).padStart(2, '0')}h, ${diaCompleto}`,
+    }));
+}
+
+function agruparVendasParaGrafico(vendas, inicioIso, fimIso) {
+    if (inicioIso === fimIso) {
+        return { pontos: agruparVendasPorHora(vendas, inicioIso), granularidade: 'hora' };
+    }
+    return { pontos: agruparVendasPorDia(vendas, inicioIso, fimIso), granularidade: 'dia' };
+}
+
+function renderizarGraficoVendasPorDia(pontos, granularidade) {
     const container = document.getElementById('vendas-por-dia-chart');
     const vazio = document.getElementById('vendas-por-dia-empty');
     container.innerHTML = '';
 
+    document.getElementById('titulo-vendas-por-dia').textContent =
+        granularidade === 'hora' ? 'Vendas por hora' : 'Vendas por dia';
+    document.getElementById('legenda-vendas-por-dia').textContent =
+        granularidade === 'hora'
+            ? 'Faturamento bruto de cada hora, no dia selecionado'
+            : 'Faturamento bruto no período selecionado';
+
     const temVenda = pontos.some((p) => p.total > 0);
     vazio.classList.toggle('empty-state--hidden', temVenda || pontos.length === 0);
     if (!temVenda) {
-        renderizarTabelaVendasPorDia(pontos);
+        renderizarTabelaVendasPorDia(pontos, granularidade);
         return;
     }
 
@@ -338,7 +379,7 @@ function renderizarGraficoVendasPorDia(pontos) {
             const texto = elemento('text', {
                 x: c.x, y: altura - 8, class: 'svg-axis-label', 'text-anchor': 'middle',
             });
-            texto.textContent = formatarDataCurta(c.ponto.data);
+            texto.textContent = c.ponto.rotuloCurto;
             svg.appendChild(texto);
         }
     });
@@ -350,9 +391,9 @@ function renderizarGraficoVendasPorDia(pontos) {
         }));
         const alvo = elemento('circle', {
             cx: c.x, cy: c.y, r: 12, fill: 'transparent', class: 'svg-mark', tabindex: '0',
-            role: 'img', 'aria-label': `${formatarDataCompleta(c.ponto.data)}: ${formatarMoeda(c.ponto.total)}`,
+            role: 'img', 'aria-label': `${c.ponto.rotuloCompleto}: ${formatarMoeda(c.ponto.total)}`,
         });
-        const mostrar = (evento) => tooltip.mostrar(evento, `<strong>${formatarMoeda(c.ponto.total)}</strong><br>${textoSeguro(formatarDataCompleta(c.ponto.data))}`);
+        const mostrar = (evento) => tooltip.mostrar(evento, `<strong>${formatarMoeda(c.ponto.total)}</strong><br>${textoSeguro(c.ponto.rotuloCompleto)}`);
         alvo.addEventListener('pointermove', mostrar);
         alvo.addEventListener('pointerenter', mostrar);
         alvo.addEventListener('focus', mostrar);
@@ -362,19 +403,20 @@ function renderizarGraficoVendasPorDia(pontos) {
     });
 
     container.appendChild(svg);
-    renderizarTabelaVendasPorDia(pontos);
+    renderizarTabelaVendasPorDia(pontos, granularidade);
 }
 
-function renderizarTabelaVendasPorDia(pontos) {
+function renderizarTabelaVendasPorDia(pontos, granularidade) {
     const container = document.getElementById('vendas-por-dia-table');
     container.innerHTML = '';
     const tabela = document.createElement('table');
-    tabela.innerHTML = '<thead><tr><th>Data</th><th>Total vendido</th></tr></thead>';
+    const rotuloColuna = granularidade === 'hora' ? 'Horário' : 'Data';
+    tabela.innerHTML = `<thead><tr><th>${rotuloColuna}</th><th>Total vendido</th></tr></thead>`;
     const corpo = document.createElement('tbody');
     for (const ponto of pontos) {
         const linha = document.createElement('tr');
         const dataCel = document.createElement('td');
-        dataCel.textContent = formatarDataCompleta(ponto.data);
+        dataCel.textContent = ponto.rotuloCompleto;
         const valorCel = document.createElement('td');
         valorCel.textContent = formatarMoeda(ponto.total);
         linha.append(dataCel, valorCel);
@@ -675,7 +717,8 @@ async function carregarPainel(inicioIso, fimIso) {
         const ranking = rankingResultado.status === 'fulfilled' ? rankingResultado.value : [];
 
         renderizarKPIs(resumo, resumoAnterior);
-        renderizarGraficoVendasPorDia(agruparVendasPorDia(vendas, inicioIso, fimIso));
+        const { pontos: pontosVendasPorDia, granularidade } = agruparVendasParaGrafico(vendas, inicioIso, fimIso);
+        renderizarGraficoVendasPorDia(pontosVendasPorDia, granularidade);
         renderizarRanking(ranking);
         renderizarHorarioPico(vendas);
         renderizarHistorico(vendas);
