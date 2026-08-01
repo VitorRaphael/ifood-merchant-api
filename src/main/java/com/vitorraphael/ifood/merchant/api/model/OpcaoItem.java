@@ -1,29 +1,29 @@
 package com.vitorraphael.ifood.merchant.api.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "itens_venda")
+@Table(name = "opcoes_item")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemVenda {
+public class OpcaoItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idItem;
+    private Long idOpcao;
 
     @Column(name = "nome", nullable = false)
     private String nome;
+
+    @Column(name = "nome_grupo")
+    private String nomeGrupo;
 
     @Column(name = "quantidade", nullable = false)
     private Integer quantidade;
@@ -35,11 +35,7 @@ public class ItemVenda {
     private BigDecimal precoTotal;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_venda", nullable = false)
+    @JoinColumn(name = "id_item", nullable = false)
     @JsonBackReference
-    private Venda venda;
-
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<OpcaoItem> opcoes = new ArrayList<>();
+    private ItemVenda item;
 }

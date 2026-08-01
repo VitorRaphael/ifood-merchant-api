@@ -1,11 +1,7 @@
 package com.vitorraphael.ifood.merchant.api.service;
 
 import com.vitorraphael.ifood.merchant.api.exception.VendaNaoEncontradaException;
-import com.vitorraphael.ifood.merchant.api.model.ItemVenda;
-import com.vitorraphael.ifood.merchant.api.model.Pagamento;
-import com.vitorraphael.ifood.merchant.api.model.RankingProduto;
-import com.vitorraphael.ifood.merchant.api.model.ResumoFinanceiro;
-import com.vitorraphael.ifood.merchant.api.model.Venda;
+import com.vitorraphael.ifood.merchant.api.model.*;
 import com.vitorraphael.ifood.merchant.api.repository.ItemVendaRepository;
 import com.vitorraphael.ifood.merchant.api.repository.VendaRepository;
 import org.springframework.stereotype.Service;
@@ -65,10 +61,32 @@ public class VendaService {
             itemVenda.setPrecoUnitario(new BigDecimal(item.get("unitPrice").asString()));
             itemVenda.setPrecoTotal(new BigDecimal(item.get("totalPrice").asString()));
             itemVenda.setVenda(venda);
+
+            if (item.has("options")) {
+                mapearOpcoes(item.get("options"), itemVenda);
+            }
+
             venda.getItens().add(itemVenda);
         }
 
         return vendaRepository.save(venda);
+    }
+
+    private void mapearOpcoes(JsonNode opcoesJson, ItemVenda itemVenda) {
+        for (JsonNode opcaoJson : opcoesJson) {
+            OpcaoItem opcao = new OpcaoItem();
+            opcao.setNome(opcaoJson.get("name").asString());
+            opcao.setNomeGrupo(opcaoJson.has("groupName") ? opcaoJson.get("groupName").asString() : null);
+            opcao.setQuantidade(opcaoJson.get("quantity").asInt());
+            opcao.setPrecoUnitario(new BigDecimal(opcaoJson.get("unitPrice").asString()));
+            opcao.setPrecoTotal(opcao.getPrecoUnitario().multiply(BigDecimal.valueOf(opcao.getQuantidade())));
+            opcao.setItem(itemVenda);
+            itemVenda.getOpcoes().add(opcao);
+
+            if (opcaoJson.has("customizations")) {
+                mapearOpcoes(opcaoJson.get("customizations"), itemVenda);
+            }
+        }
     }
 
     public List<Venda> listarVendas() {

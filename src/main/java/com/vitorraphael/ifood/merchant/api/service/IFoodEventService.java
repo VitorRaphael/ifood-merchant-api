@@ -95,6 +95,7 @@ public class IFoodEventService {
 
             try {
                 String pedidoJson = orderService.buscarPedido(orderId);
+                log.info("JSON bruto do pedido {}: {}", orderId, pedidoJson);
                 vendaService.processarPedido(pedidoJson);
                 log.info("Venda persistida automaticamente a partir do evento: {}", orderId);
             } catch (Exception e) {
