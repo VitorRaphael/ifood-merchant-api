@@ -6,6 +6,8 @@ import com.vitorraphael.ifood.merchant.api.repository.ItemVendaRepository;
 import com.vitorraphael.ifood.merchant.api.repository.VendaRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -99,11 +101,30 @@ public class VendaService {
     }
 
     public List<Venda> listarVendas() {
-        return vendaRepository.findAll();
+        return vendaRepository.findAll(Sort.by(Sort.Direction.DESC, "dataVenda"));
     }
 
     public List<Venda> listarVendas(LocalDate inicio, LocalDate fim) {
         return vendaRepository.findByDataVendaBetween(inicio, fim);
+    }
+
+    // Paginação opt-in: sem 'pagina'/'tamanhoPagina' o comportamento é idêntico ao de
+    // antes (lista completa) -- o painel atual não manda esses parâmetros, então continua
+    // funcionando sem alteração. Quando o front-end quiser paginar, é só passar os dois.
+    public List<Venda> listarVendas(Integer pagina, Integer tamanhoPagina) {
+        if (pagina == null || tamanhoPagina == null) {
+            return listarVendas();
+        }
+        return vendaRepository.findAll(PageRequest.of(pagina, tamanhoPagina, Sort.by(Sort.Direction.DESC, "dataVenda")))
+                .getContent();
+    }
+
+    public List<Venda> listarVendas(LocalDate inicio, LocalDate fim, Integer pagina, Integer tamanhoPagina) {
+        if (pagina == null || tamanhoPagina == null) {
+            return listarVendas(inicio, fim);
+        }
+        return vendaRepository.findByDataVendaBetween(inicio, fim,
+                PageRequest.of(pagina, tamanhoPagina, Sort.by(Sort.Direction.DESC, "dataVenda"))).getContent();
     }
 
     private static final List<String> STATUS_ATIVOS = List.of("CONFIRMADO", "PRONTO", "EM_ROTA");

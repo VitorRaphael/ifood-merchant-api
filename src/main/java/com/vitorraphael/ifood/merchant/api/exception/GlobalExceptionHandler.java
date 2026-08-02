@@ -20,6 +20,17 @@ public class GlobalExceptionHandler {
         return construirResposta(HttpStatus.NOT_FOUND, e.getMessage(), request);
     }
 
+    @ExceptionHandler(java.time.format.DateTimeParseException.class)
+    public ResponseEntity<ErroResposta> tratarDataInvalida(java.time.format.DateTimeParseException e, HttpServletRequest request) {
+        return construirResposta(HttpStatus.BAD_REQUEST,
+                "Data inválida: \"" + e.getParsedString() + "\" (use o formato AAAA-MM-DD).", request);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErroResposta> tratarArgumentoInvalido(IllegalArgumentException e, HttpServletRequest request) {
+        return construirResposta(HttpStatus.BAD_REQUEST, e.getMessage(), request);
+    }
+
     @ExceptionHandler(TokenIndisponivelException.class)
     public ResponseEntity<ErroResposta> tratarTokenIndisponivel(TokenIndisponivelException e, HttpServletRequest request) {
         log.error("Token indisponível: {}", e.getMessage());

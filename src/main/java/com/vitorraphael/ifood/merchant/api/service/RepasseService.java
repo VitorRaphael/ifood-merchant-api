@@ -3,6 +3,7 @@ package com.vitorraphael.ifood.merchant.api.service;
 import com.vitorraphael.ifood.merchant.api.model.Repasse;
 import com.vitorraphael.ifood.merchant.api.repository.RepasseRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -21,12 +22,22 @@ public class RepasseService {
         this.repasseRepository = repasseRepository;
     }
 
+    @Transactional
     public List<Repasse> processarLiquidacoes(String liquidacaoJson) {
         JsonNode raiz = objectMapper.readTree(liquidacaoJson);
-        List<Repasse> salvos = new ArrayList<>();
+        JsonNode settlements = raiz.get("settlements");
+        if (settlements == null || settlements.isNull()) {
+            return List.of();
+        }
 
-        for (JsonNode periodo : raiz.get("settlements")) {
-            for (JsonNode titulo : periodo.get("closingItems")) {
+        List<Repasse> repasses = new ArrayList<>();
+        for (JsonNode periodo : settlements) {
+            JsonNode itensDoPeriodo = periodo.get("closingItems");
+            if (itensDoPeriodo == null) {
+                continue;
+            }
+
+            for (JsonNode titulo : itensDoPeriodo) {
                 Repasse repasse = new Repasse();
                 repasse.setIdTitulo(titulo.get("id").asString());
                 repasse.setTipo(titulo.get("type").asString());
@@ -38,11 +49,11 @@ public class RepasseService {
                     repasse.setDataPagamento(LocalDate.parse(dataPagamentoNode.asString()));
                 }
 
-                salvos.add(repasseRepository.save(repasse));
+                repasses.add(repasse);
             }
         }
 
-        return salvos;
+        return repasseRepository.saveAll(repasses);
     }
 
     public List<Repasse> listarRepasses() {

@@ -37,11 +37,16 @@ public class VendaController {
     @GetMapping
     public ResponseEntity<List<Venda>> listar(
             @RequestParam(required = false) String inicio,
-            @RequestParam(required = false) String fim) {
-        if (inicio != null && fim != null) {
-            return ResponseEntity.ok(vendaService.listarVendas(LocalDate.parse(inicio), LocalDate.parse(fim)));
+            @RequestParam(required = false) String fim,
+            @RequestParam(required = false) Integer pagina,
+            @RequestParam(required = false) Integer tamanhoPagina) {
+        if (inicio == null && fim == null) {
+            return ResponseEntity.ok(vendaService.listarVendas(pagina, tamanhoPagina));
         }
-        return ResponseEntity.ok(vendaService.listarVendas());
+        if (inicio == null || fim == null) {
+            throw new IllegalArgumentException("Informe 'inicio' e 'fim' juntos, ou nenhum dos dois.");
+        }
+        return ResponseEntity.ok(vendaService.listarVendas(LocalDate.parse(inicio), LocalDate.parse(fim), pagina, tamanhoPagina));
     }
 
     @GetMapping("/{idVenda}")

@@ -3,9 +3,13 @@ package com.vitorraphael.ifood.merchant.api.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
+import org.hibernate.annotations.BatchSize;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -13,12 +17,16 @@ import java.util.List;
 
 @Entity
 @Table(name = "itens_venda")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"venda", "opcoes"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ItemVenda {
 
     @Id
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idItem;
 
@@ -41,5 +49,6 @@ public class ItemVenda {
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
+    @BatchSize(size = 50)
     private List<OpcaoItem> opcoes = new ArrayList<>();
 }

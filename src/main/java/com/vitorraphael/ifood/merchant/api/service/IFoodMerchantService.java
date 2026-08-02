@@ -1,15 +1,7 @@
 package com.vitorraphael.ifood.merchant.api.service;
 
-import com.vitorraphael.ifood.merchant.api.exception.IFoodApiException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.Optional;
 
 @Service
 public class IFoodMerchantService {
@@ -17,160 +9,45 @@ public class IFoodMerchantService {
     private static final String BASE_URL = "https://merchant-api.ifood.com.br/merchant/v1.0";
 
     private final IFoodAuthService authService;
-
-    public IFoodMerchantService(IFoodAuthService authService) {
-        this.authService = authService;
-    }
-
-    public String listarLojas() {
-        return executarGet(BASE_URL + "/merchants");
-    }
-
-    private String executarGet(String url) {
-        String token = authService.getValidToken();
-
-        HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build();
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Authorization", "Bearer " + token)
-                .header("Accept", "application/json")
-                .timeout(Duration.ofSeconds(10))
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return tratarResposta(response);
-        } catch (java.io.IOException | InterruptedException e) {
-            throw new IFoodApiException(0, "Falha de conexão com o iFood: " + e.getMessage(), e);
-        }
-    }
-
-    private String tratarResposta(HttpResponse<String> response) {
-        int status = response.statusCode();
-
-        if (status >= 200 && status < 300) {
-            return response.body();
-        }
-        if (status == 401) {
-            throw new IFoodApiException(status, "Token inválido ou expirado junto ao iFood.");
-        }
-        if (status == 403) {
-            throw new IFoodApiException(status, "Sem permissão para acessar essa loja.");
-        }
-        if (status == 409) {
-            throw new IFoodApiException(status, "Conflito: essa operação esbarra em algo que já existe (ex. pausa sobreposta a um horário existente).");
-        }
-        if (status == 429) {
-            String retryAfter = Optional.ofNullable(response.headers().firstValue("Retry-After").orElse(null))
-                    .orElse("alguns segundos");
-            throw new IFoodApiException(status, "Limite de requisições atingido. Tente novamente em " + retryAfter + ".");
-        }
-        if (status >= 500) {
-            throw new IFoodApiException(status, "O iFood está com problemas no momento (status " + status + ").");
-        }
-        throw new IFoodApiException(status, "iFood recusou o pedido [" + status + "]: " + response.body());
-    }
-
-    private String executarPut(String url, String corpoJson) {
-        String token = authService.getValidToken();
-
-        HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build();
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Authorization", "Bearer " + token)
-                .header("Content-Type", "application/json")
-                .timeout(Duration.ofSeconds(10))
-                .PUT(HttpRequest.BodyPublishers.ofString(corpoJson))
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return tratarResposta(response);
-        } catch (java.io.IOException | InterruptedException e) {
-            throw new IFoodApiException(0, "Falha de conexão com o iFood: " + e.getMessage(), e);
-        }
-    }
-
-    private String executarPost(String url, String corpoJson) {
-        String token = authService.getValidToken();
-
-        HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build();
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Authorization", "Bearer " + token)
-                .header("Content-Type", "application/json")
-                .timeout(Duration.ofSeconds(10))
-                .POST(HttpRequest.BodyPublishers.ofString(corpoJson))
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return tratarResposta(response);
-        } catch (java.io.IOException | InterruptedException e) {
-            throw new IFoodApiException(0, "Falha de conexão com o iFood: " + e.getMessage(), e);
-        }
-    }
-
-    private String executarDelete(String url) {
-        String token = authService.getValidToken();
-
-        HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build();
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Authorization", "Bearer " + token)
-                .timeout(Duration.ofSeconds(10))
-                .DELETE()
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return tratarResposta(response);
-        } catch (java.io.IOException | InterruptedException e) {
-            throw new IFoodApiException(0, "Falha de conexão com o iFood: " + e.getMessage(), e);
-        }
-    }
+    private final IFoodHttpClient httpClient;
 
     @Value("${ifood.merchant.id}")
     private String merchantId;
 
+    public IFoodMerchantService(IFoodAuthService authService, IFoodHttpClient httpClient) {
+        this.authService = authService;
+        this.httpClient = httpClient;
+    }
+
+    public String listarLojas() {
+        return httpClient.get(BASE_URL + "/merchants", authService.getValidToken());
+    }
+
     public String buscarStatus() {
-        return executarGet(BASE_URL + "/merchants/" + merchantId + "/status");
+        return httpClient.get(BASE_URL + "/merchants/" + merchantId + "/status", authService.getValidToken());
     }
 
     public String buscarDetalhes() {
-        return executarGet(BASE_URL + "/merchants/" + merchantId);
+        return httpClient.get(BASE_URL + "/merchants/" + merchantId, authService.getValidToken());
     }
 
     public String buscarHorarios() {
-        return executarGet(BASE_URL + "/merchants/" + merchantId + "/opening-hours");
+        return httpClient.get(BASE_URL + "/merchants/" + merchantId + "/opening-hours", authService.getValidToken());
     }
 
     public String atualizarHorarios(String corpoJson) {
-        return executarPut(BASE_URL + "/merchants/" + merchantId + "/opening-hours", corpoJson);
+        return httpClient.put(BASE_URL + "/merchants/" + merchantId + "/opening-hours", authService.getValidToken(), corpoJson);
     }
 
     public String buscarPausas() {
-        return executarGet(BASE_URL + "/merchants/" + merchantId + "/interruptions");
+        return httpClient.get(BASE_URL + "/merchants/" + merchantId + "/interruptions", authService.getValidToken());
     }
 
     public String criarPausa(String corpoJson) {
-        return executarPost(BASE_URL + "/merchants/" + merchantId + "/interruptions", corpoJson);
+        return httpClient.post(BASE_URL + "/merchants/" + merchantId + "/interruptions", authService.getValidToken(), corpoJson);
     }
 
     public String removerPausa(String idPausa) {
-        return executarDelete(BASE_URL + "/merchants/" + merchantId + "/interruptions/" + idPausa);
+        return httpClient.delete(BASE_URL + "/merchants/" + merchantId + "/interruptions/" + idPausa, authService.getValidToken());
     }
-
 }

@@ -2,9 +2,13 @@ package com.vitorraphael.ifood.merchant.api.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
+import org.hibernate.annotations.BatchSize;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.math.BigDecimal;
@@ -13,12 +17,18 @@ import java.util.List;
 
 @Entity
 @Table(name = "vendas")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+// @Data foi trocado por isso: com relação bidirecional (Venda <-> ItemVenda/Pagamento),
+// equals()/hashCode()/toString() gerados pelo @Data se chamam em cadeia e estouram a pilha.
+@ToString(exclude = {"pagamentos", "itens"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Venda {
 
     @Id
+    @EqualsAndHashCode.Include
     @Column(name = "id_venda", length = 50)
     private String idVenda;
 
@@ -52,11 +62,16 @@ public class Venda {
     @Column(name = "criado_em")
     private String criadoEm;
 
+    // @BatchSize: em vez de 1 query por Venda pra buscar seus pagamentos/itens (N+1 -- 100
+    // vendas listadas viravam ~200 queries extras), o Hibernate agrupa até 50 vendas por vez
+    // num único "WHERE id_venda IN (...)". Continua LAZY, mas em lote.
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
+    @BatchSize(size = 50)
     private List<Pagamento> pagamentos = new ArrayList<>();
 
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
+    @BatchSize(size = 50)
     private List<ItemVenda> itens = new ArrayList<>();
 }
