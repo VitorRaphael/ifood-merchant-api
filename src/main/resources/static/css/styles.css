@@ -1064,10 +1064,10 @@ img, svg {
     text-wrap: pretty;
 }
 
-/* O grid mora no PRÓPRIO #kpi-row: os 4 tiles são filhos diretos. */
+/* O grid mora no PRÓPRIO #kpi-row: os 5 tiles são filhos diretos. */
 .kpi-row {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: var(--sp-6);
 }
 
@@ -1141,6 +1141,16 @@ img, svg {
     background: var(--critical-soft);
     border-color: var(--critical-line);
     color: var(--critical);
+}
+
+.status-pill--cancelado {
+    color: var(--critical);
+    font-weight: 600;
+}
+
+.status-pill--concluido {
+    color: var(--good);
+    font-weight: 600;
 }
 
 /* =============================================================================

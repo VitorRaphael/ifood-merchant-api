@@ -259,6 +259,11 @@ function renderizarKPIs(resumoAtual, resumoAnterior) {
             'Comissão iFood',
             formatarMoeda(resumoAtual.comissaoTotal),
             renderizarDelta(calcularDelta(resumoAtual.comissaoTotal, resumoAnterior?.comissaoTotal ?? null), null)
+        ),
+        criarStatTile(
+            'Cancelados',
+            `${formatarNumero(resumoAtual.totalCancelados)} · ${formatarMoeda(resumoAtual.valorCancelado)} perdido`,
+            renderizarDelta(calcularDelta(resumoAtual.totalCancelados, resumoAnterior?.totalCancelados ?? null), false)
         )
     );
 }
@@ -670,6 +675,7 @@ function renderizarHistorico(vendas) {
         valorCel.textContent = formatarMoeda(venda.valorBruto);
         const statusCel = document.createElement('td');
         statusCel.textContent = venda.status;
+        statusCel.className = `status-pill status-pill--${venda.status.toLowerCase()}`;
         tr.append(dataCel, horaCel, idCel, valorCel, statusCel);
         corpo.appendChild(tr);
     }
@@ -712,7 +718,7 @@ async function carregarPainel(inicioIso, fimIso) {
         const vendas = vendasResultado.status === 'fulfilled' ? vendasResultado.value : [];
         const resumo = resumoResultado.status === 'fulfilled'
             ? resumoResultado.value
-            : { totalVendas: 0, valorBrutoTotal: 0, valorLiquidoTotal: 0, comissaoTotal: 0 };
+            : { totalVendas: 0, valorBrutoTotal: 0, valorLiquidoTotal: 0, comissaoTotal: 0, totalCancelados: 0, valorCancelado: 0 };
         const resumoAnterior = resumoAnteriorResultado.status === 'fulfilled' ? resumoAnteriorResultado.value : null;
         const ranking = rankingResultado.status === 'fulfilled' ? rankingResultado.value : [];
 

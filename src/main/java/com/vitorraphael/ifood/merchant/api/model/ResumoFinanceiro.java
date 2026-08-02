@@ -9,6 +9,8 @@ public record ResumoFinanceiro(
         long totalVendas,
         BigDecimal valorBrutoTotal,
         BigDecimal valorLiquidoTotal,
-        BigDecimal comissaoTotal
+        BigDecimal comissaoTotal,
+        long totalCancelados,
+        BigDecimal valorCancelado
 ) {}
 

@@ -4,6 +4,8 @@ import com.vitorraphael.ifood.merchant.api.exception.VendaNaoEncontradaException
 import com.vitorraphael.ifood.merchant.api.model.*;
 import com.vitorraphael.ifood.merchant.api.repository.ItemVendaRepository;
 import com.vitorraphael.ifood.merchant.api.repository.VendaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -22,6 +24,7 @@ public class VendaService {
     // refletir o horario local do pedido, nao o UTC cru que o iFood manda.
     private static final ZoneId FUSO_LOJA = ZoneId.of("America/Sao_Paulo");
 
+    private static final Logger log = LoggerFactory.getLogger(VendaService.class);
     private final VendaRepository vendaRepository;
     private final ItemVendaRepository itemVendaRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -111,14 +114,35 @@ public class VendaService {
 
         BigDecimal totalBruto = BigDecimal.ZERO;
         BigDecimal totalLiquido = BigDecimal.ZERO;
+        BigDecimal valorCancelado = BigDecimal.ZERO;
+        long totalConcluidos = 0;
+        long totalCancelados = 0;
 
         for (Venda venda : vendas) {
-            totalBruto = totalBruto.add(venda.getValorBruto());
-            totalLiquido = totalLiquido.add(venda.getValorLiquido());
+            if ("CONCLUIDO".equals(venda.getStatus())) {
+                totalBruto = totalBruto.add(venda.getValorBruto());
+                totalLiquido = totalLiquido.add(venda.getValorLiquido());
+                totalConcluidos++;
+            } else if ("CANCELADO".equals(venda.getStatus())) {
+                valorCancelado = valorCancelado.add(venda.getValorBruto());
+                totalCancelados++;
+            }
         }
 
         BigDecimal comissaoTotal = totalBruto.subtract(totalLiquido);
 
-        return new ResumoFinanceiro(inicio, fim, vendas.size(), totalBruto, totalLiquido, comissaoTotal);
+        return new ResumoFinanceiro(inicio, fim, totalConcluidos, totalBruto, totalLiquido, comissaoTotal,
+                totalCancelados, valorCancelado);
     }
+
+    public void atualizarStatus(String idVenda, String novoStatus) {
+        vendaRepository.findById(idVenda).ifPresentOrElse(
+                venda -> {
+                    venda.setStatus(novoStatus);
+                    vendaRepository.save(venda);
+                },
+                () -> log.warn("Evento recebido para pedido {} que ainda não existe como Venda (status: {}).", idVenda, novoStatus)
+        );
+    }
+
 }

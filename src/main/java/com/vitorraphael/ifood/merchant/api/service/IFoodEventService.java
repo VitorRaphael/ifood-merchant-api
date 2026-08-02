@@ -89,17 +89,29 @@ public class IFoodEventService {
             String codigo = codigoNode != null ? codigoNode.asString() : "";
             String orderId = orderIdNode != null ? orderIdNode.asString() : null;
 
-            if (!"PLC".equals(codigo) || orderId == null) {
+            if (orderId == null) {
                 continue;
             }
 
             try {
-                String pedidoJson = orderService.buscarPedido(orderId);
-                log.info("JSON bruto do pedido {}: {}", orderId, pedidoJson);
-                vendaService.processarPedido(pedidoJson);
-                log.info("Venda persistida automaticamente a partir do evento: {}", orderId);
+                switch (codigo) {
+                    case "PLC" -> {
+                        String pedidoJson = orderService.buscarPedido(orderId);
+                        vendaService.processarPedido(pedidoJson);
+                        log.info("Venda persistida a partir do evento: {}", orderId);
+                    }
+                    case "CON" -> {
+                        vendaService.atualizarStatus(orderId, "CONCLUIDO");
+                        log.info("Venda concluída: {}", orderId);
+                    }
+                    case "CAN" -> {
+                        vendaService.atualizarStatus(orderId, "CANCELADO");
+                        log.info("Venda cancelada: {}", orderId);
+                    }
+                    default -> log.info("Evento ignorado (código {}): {}", codigo, orderId);
+                }
             } catch (Exception e) {
-                log.error("Falha ao processar evento do pedido {}: {}", orderId, e.getMessage());
+                log.error("Falha ao processar evento {} do pedido {}: {}", codigo, orderId, e.getMessage());
             }
         }
 
