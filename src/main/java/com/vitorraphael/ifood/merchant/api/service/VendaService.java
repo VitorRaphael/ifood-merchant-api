@@ -15,6 +15,8 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -48,6 +50,10 @@ public class VendaService {
         venda.setValorLiquido(new BigDecimal(pedido.get("total").get("orderAmount").asString()));
         venda.setTaxaEntrega(new BigDecimal(pedido.get("total").get("deliveryFee").asString()));
         venda.setStatus("CONFIRMADO");
+        venda.setCriadoEm(pedido.get("createdAt").asString());
+        if (pedido.has("customer") && pedido.get("customer").has("name")) {
+            venda.setNomeCliente(pedido.get("customer").get("name").asString());
+        }
 
         for (JsonNode metodo : pedido.get("payments").get("methods")) {
             Pagamento pagamento = new Pagamento();
@@ -98,6 +104,24 @@ public class VendaService {
 
     public List<Venda> listarVendas(LocalDate inicio, LocalDate fim) {
         return vendaRepository.findByDataVendaBetween(inicio, fim);
+    }
+
+    private static final List<String> STATUS_ATIVOS = List.of("CONFIRMADO", "PRONTO", "EM_ROTA");
+    private static final List<String> STATUS_FINALIZADOS = List.of("CONCLUIDO", "CANCELADO");
+
+    // Feed do Gestor de Pedidos. Pedido ativo (ainda em andamento) aparece sempre,
+    // não importa o dia em que foi criado — senão um pedido feito antes da meia-noite
+    // e ainda em preparo sumiria do quadro assim que virasse o dia. Só a coluna
+    // "Finalizado" (concluído/cancelado) é restrita a hoje, que é o comportamento
+    // que faz sentido pra um quadro operacional (não é relatório histórico).
+    public List<Venda> listarPedidosDoDia() {
+        LocalDate hoje = LocalDate.now(FUSO_LOJA);
+
+        List<Venda> pedidos = new ArrayList<>(vendaRepository.findByStatusIn(STATUS_ATIVOS));
+        pedidos.addAll(vendaRepository.findByDataVendaAndStatusIn(hoje, STATUS_FINALIZADOS));
+
+        pedidos.sort(Comparator.comparing((Venda v) -> v.getCriadoEm() == null ? "" : v.getCriadoEm()).reversed());
+        return pedidos;
     }
 
     public List<RankingProduto> gerarRankingProdutos(LocalDate inicio, LocalDate fim) {

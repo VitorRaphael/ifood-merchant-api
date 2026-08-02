@@ -1795,3 +1795,148 @@ img, svg {
 .chart-tooltip[hidden] {
     display: none;
 }
+
+/* =============================================================================
+ * 12. GESTOR DE PEDIDOS (quadro Kanban)
+ * -----------------------------------------------------------------------------
+ * Seção adicionada à parte — nenhuma regra acima foi tocada. Reaproveita os
+ * tokens do topo do arquivo (--sp-*, --r-*, --fs-*, --text-*, --surface-*,
+ * --border-*) em vez de valores soltos.
+ * ========================================================================== */
+
+/* Botão de navegação da sidebar: era <span>, virou <button> pra ser clicável de
+   verdade (teclado incluído) — este reset tira a aparência padrão de botão. */
+.nav__item--link {
+    appearance: none;
+    background: none;
+    border: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+}
+
+.kanban {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(200px, 1fr));
+    gap: var(--sp-4);
+    overflow-x: auto;
+    padding-bottom: var(--sp-1);
+}
+
+.kanban__coluna {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+    min-width: 0;
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: var(--sp-3);
+}
+
+.kanban__coluna-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
+}
+
+.kanban__coluna-titulo {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.kanban__coluna-contador {
+    font-size: var(--fs-2xs);
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-pill);
+    padding: 1px 7px;
+}
+
+.kanban__lista {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    min-height: 40px;
+}
+
+.kanban__vazio {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    line-height: 1.5;
+    padding: var(--sp-2) var(--sp-1);
+}
+
+.kanban__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    padding: var(--sp-3);
+    box-shadow: var(--shadow-xs);
+}
+
+.kanban__card--cancelado {
+    border-color: var(--critical-line);
+    background: var(--critical-soft);
+}
+
+.kanban__card-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
+}
+
+.kanban__card-codigo {
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.kanban__card-selo {
+    font-size: var(--fs-2xs);
+    font-weight: 600;
+    letter-spacing: var(--track-wide);
+    color: var(--good);
+    background: var(--good-soft);
+    border: 1px solid var(--good-line);
+    border-radius: var(--r-pill);
+    padding: 1px 7px;
+    white-space: nowrap;
+}
+
+.kanban__card-cliente {
+    font-size: var(--fs-base);
+    font-weight: 500;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.kanban__card-rodape {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+}
+
+.kanban__card-valor {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.kanban__card-acao {
+    width: 100%;
+    justify-content: center;
+}

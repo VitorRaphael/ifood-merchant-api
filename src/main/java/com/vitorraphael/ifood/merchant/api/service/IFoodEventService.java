@@ -96,6 +96,12 @@ public class IFoodEventService {
             try {
                 switch (codigo) {
                     case "PLC" -> {
+                        try {
+                            orderService.confirmarPedido(orderId);
+                            log.info("Pedido {} confirmado automaticamente junto ao iFood.", orderId);
+                        } catch (Exception e) {
+                            log.warn("Falha ao auto-confirmar o pedido {} (seguindo mesmo assim): {}", orderId, e.getMessage());
+                        }
                         String pedidoJson = orderService.buscarPedido(orderId);
                         vendaService.processarPedido(pedidoJson);
                         log.info("Venda persistida a partir do evento: {}", orderId);

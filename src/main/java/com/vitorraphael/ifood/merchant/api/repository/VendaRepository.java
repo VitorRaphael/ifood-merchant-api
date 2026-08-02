@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface VendaRepository extends JpaRepository<Venda, String> {
     List<Venda> findByDataVendaBetween(LocalDate inicio, LocalDate fim);
+    List<Venda> findByStatusIn(List<String> status);
+    List<Venda> findByDataVendaAndStatusIn(LocalDate data, List<String> status);
 }

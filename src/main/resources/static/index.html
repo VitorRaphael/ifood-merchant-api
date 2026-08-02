@@ -57,7 +57,7 @@
             <p class="nav__label sidebar__expanded">Início</p>
             <ul class="nav__list">
                 <li>
-                    <span class="nav__item nav__item--active" aria-current="page" title="Visão Geral">
+                    <button type="button" class="nav__item nav__item--active nav__item--link" id="nav-visao-geral" data-view="visao-geral" aria-current="page" title="Visão Geral">
                         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <rect x="3" y="3" width="7" height="9" rx="1"/>
                             <rect x="14" y="3" width="7" height="5" rx="1"/>
@@ -65,7 +65,7 @@
                             <rect x="3" y="16" width="7" height="5" rx="1"/>
                         </svg>
                         <span class="nav__text sidebar__expanded">Visão Geral</span>
-                    </span>
+                    </button>
                 </li>
             </ul>
             </div>
@@ -74,16 +74,14 @@
             <p class="nav__label sidebar__expanded">Módulos</p>
             <ul class="nav__list">
                 <li>
-                    <span class="nav__item nav__item--soon" aria-disabled="true" title="Gestão de Pedidos — ainda não disponível">
+                    <button type="button" class="nav__item nav__item--link" id="nav-pedidos" data-view="pedidos" title="Gestor de Pedidos">
                         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
                             <path d="M3 6h18"/>
                             <path d="M16 10a4 4 0 0 1-8 0"/>
                         </svg>
-                        <span class="nav__text sidebar__expanded">Gestão de Pedidos</span>
-                        <span class="sr-only"> (em breve)</span>
-                        <span class="badge sidebar__expanded" aria-hidden="true">em breve</span>
-                    </span>
+                        <span class="nav__text sidebar__expanded">Gestor de Pedidos</span>
+                    </button>
                 </li>
                 <li>
                     <span class="nav__item nav__item--soon" aria-disabled="true" title="Cardápio &amp; Opções — ainda não disponível">
@@ -161,7 +159,7 @@
                             <path d="m9 18 6-6-6-6"/>
                         </svg>
                     </li>
-                    <li class="breadcrumb__item breadcrumb__item--current"><span aria-current="page">Visão Geral</span></li>
+                    <li class="breadcrumb__item breadcrumb__item--current"><span aria-current="page" id="breadcrumb-atual">Visão Geral</span></li>
                 </ol>
             </nav>
 
@@ -193,10 +191,10 @@
 
             <div class="page-head">
                 <div class="page-head__text">
-                    <h1 class="page-head__title">Visão Geral</h1>
-                    <p class="page-head__subtitle">Vendas, produtos e horários de pico da sua loja no iFood, em um só lugar.</p>
+                    <h1 class="page-head__title" id="page-head-titulo">Visão Geral</h1>
+                    <p class="page-head__subtitle" id="page-head-subtitulo">Vendas, produtos e horários de pico da sua loja no iFood, em um só lugar.</p>
                 </div>
-                <div class="page-head__meta">
+                <div class="page-head__meta" id="page-head-meta">
                     <svg class="ico ico--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M12 6v6l4 2"/>
@@ -209,6 +207,9 @@
             </div>
 
             <div id="status-banner" class="status-banner status-banner--hidden" role="alert"></div>
+
+            <!-- ==================== VIEW: VISÃO GERAL (inalterada) ==================== -->
+            <div id="view-visao-geral" class="view">
 
             <section class="filters" aria-label="Filtro de período">
                 <div class="filters__group">
@@ -318,6 +319,64 @@
             <footer class="page-foot">
                 <p>Painel local · dados vindos da iFood Merchant API através da sua própria API Spring Boot.</p>
             </footer>
+
+            </div>
+            <!-- ==================== FIM VIEW: VISÃO GERAL ==================== -->
+
+            <!-- ==================== VIEW: GESTOR DE PEDIDOS ==================== -->
+            <div id="view-pedidos" class="view" hidden>
+
+                <section class="card" aria-labelledby="titulo-quadro-pedidos">
+                    <div class="card__head">
+                        <div class="card__heading">
+                            <h2 class="card__title" id="titulo-quadro-pedidos">Pedidos de hoje</h2>
+                            <p class="card__caption">Pedidos novos são confirmados automaticamente junto ao iFood — o resto do fluxo você conduz aqui.</p>
+                        </div>
+                    </div>
+                    <div class="card__body">
+                        <div class="kanban" id="kanban-quadro">
+                            <div class="kanban__coluna" data-coluna="aceitar">
+                                <div class="kanban__coluna-head">
+                                    <span class="kanban__coluna-titulo">Aceitar</span>
+                                    <span class="kanban__coluna-contador" data-contador="aceitar">0</span>
+                                </div>
+                                <div class="kanban__lista" data-lista="aceitar"></div>
+                            </div>
+                            <div class="kanban__coluna" data-coluna="preparo">
+                                <div class="kanban__coluna-head">
+                                    <span class="kanban__coluna-titulo">Em Preparo</span>
+                                    <span class="kanban__coluna-contador" data-contador="preparo">0</span>
+                                </div>
+                                <div class="kanban__lista" data-lista="preparo"></div>
+                            </div>
+                            <div class="kanban__coluna" data-coluna="pronto">
+                                <div class="kanban__coluna-head">
+                                    <span class="kanban__coluna-titulo">Pronto</span>
+                                    <span class="kanban__coluna-contador" data-contador="pronto">0</span>
+                                </div>
+                                <div class="kanban__lista" data-lista="pronto"></div>
+                            </div>
+                            <div class="kanban__coluna" data-coluna="rota">
+                                <div class="kanban__coluna-head">
+                                    <span class="kanban__coluna-titulo">Em Rota</span>
+                                    <span class="kanban__coluna-contador" data-contador="rota">0</span>
+                                </div>
+                                <div class="kanban__lista" data-lista="rota"></div>
+                            </div>
+                            <div class="kanban__coluna" data-coluna="finalizado">
+                                <div class="kanban__coluna-head">
+                                    <span class="kanban__coluna-titulo">Finalizado</span>
+                                    <span class="kanban__coluna-contador" data-contador="finalizado">0</span>
+                                </div>
+                                <div class="kanban__lista" data-lista="finalizado"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+            <!-- ==================== FIM VIEW: GESTOR DE PEDIDOS ==================== -->
+
         </main>
     </div>
 </div>
@@ -344,6 +403,76 @@
 <div id="chart-tooltip" class="chart-tooltip" role="tooltip" hidden></div>
 
 <script src="js/app.js"></script>
+<script src="js/pedidos.js"></script>
+
+<script>
+/*
+ * Troca de view (Visão Geral <-> Gestor de Pedidos) sem recarregar a página.
+ * Bloco isolado: só lê/escreve elementos com id/data-view próprios, não toca
+ * em nada que js/app.js ou js/pedidos.js usem.
+ */
+(function () {
+    'use strict';
+
+    var VIEWS = {
+        'visao-geral': {
+            titulo: 'Visão Geral',
+            subtitulo: 'Vendas, produtos e horários de pico da sua loja no iFood, em um só lugar.',
+            mostrarMeta: true,
+        },
+        'pedidos': {
+            titulo: 'Gestor de Pedidos',
+            subtitulo: 'Acompanhe o pedido do aceite até a entrega, em tempo real.',
+            mostrarMeta: false,
+        },
+    };
+
+    var botoes = document.querySelectorAll('[data-view]');
+    var breadcrumbAtual = document.getElementById('breadcrumb-atual');
+    var tituloEl = document.getElementById('page-head-titulo');
+    var subtituloEl = document.getElementById('page-head-subtitulo');
+    var metaEl = document.getElementById('page-head-meta');
+
+    function ativarView(nomeView) {
+        var config = VIEWS[nomeView];
+        if (!config) {
+            return;
+        }
+
+        Object.keys(VIEWS).forEach(function (chave) {
+            var view = document.getElementById('view-' + chave);
+            if (view) {
+                view.hidden = chave !== nomeView;
+            }
+        });
+
+        botoes.forEach(function (botao) {
+            var ativo = botao.dataset.view === nomeView;
+            botao.classList.toggle('nav__item--active', ativo);
+            if (ativo) {
+                botao.setAttribute('aria-current', 'page');
+            } else {
+                botao.removeAttribute('aria-current');
+            }
+        });
+
+        if (breadcrumbAtual) breadcrumbAtual.textContent = config.titulo;
+        if (tituloEl) tituloEl.textContent = config.titulo;
+        if (subtituloEl) subtituloEl.textContent = config.subtitulo;
+        if (metaEl) metaEl.style.display = config.mostrarMeta ? '' : 'none';
+
+        if (nomeView === 'pedidos' && window.Pedidos) {
+            window.Pedidos.iniciar();
+        }
+    }
+
+    botoes.forEach(function (botao) {
+        botao.addEventListener('click', function () {
+            ativarView(botao.dataset.view);
+        });
+    });
+}());
+</script>
 
 <script>
 /*
