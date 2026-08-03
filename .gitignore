@@ -38,6 +38,15 @@ tokens.json
 # Banco de dado sqLite
 *.db
 
+# Backups automáticos que o painel Database do IntelliJ/DataGrip cria antes
+# de qualquer edição feita por lá (ver .idea/dataSources/)
+*.db.bak-*
+
 # Saida gerada pelo build-instalador.bat (jar + runtime Java embutido)
 dist-jar/
 instalador/
+
+# Grafo de código do graphify: 100% reconstruível via `graphify . --update
+# --code-only`. Inclui cache de AST e snapshots de backup que crescem a cada
+# rodada -- não agrega nada útil versionado.
+graphify-out/

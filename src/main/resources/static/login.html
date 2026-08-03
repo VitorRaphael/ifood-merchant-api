@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Entrar — Painel da Loja</title>
+<style>
+  /* login.html é autocontido de propósito: authorizeHttpRequests() só libera
+     esta própria URL sem sessão (via formLogin().permitAll()), não arquivos
+     estáticos soltos. Um <link>/<script src> externo aqui exigiria abrir mais
+     matchers de permitAll só para essa página -- mais superfície pra manter. */
+  :root{
+    --page:#eef9f8;
+    --ink:#16232a;
+    --text-muted:#55636e;
+    --card-bg:#ffffff;
+    --border-subtle:#e3ecec;
+    --field-bg:#eef2f4;
+    --brand-blue:#2f6fed;
+    --brand-blue-strong:#1f56d1;
+    --ifood-red:#ea1d2c;
+    --danger:#c93b3b;
+    --ok:#1f8a5f;
+    --wave-1:#0d9488;
+    --wave-2:#22b8ac;
+    --wave-3:#7fe0d6;
+    --wave-4:#dff9f5;
+    --wave-shadow:#0a4f48;
+    --mono: ui-monospace, "Cascadia Code", "SF Mono", "Consolas", monospace;
+    --sans: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--sans);
+    background:var(--page);
+    color:var(--ink);
+    overflow:hidden;
+  }
+
+  .bg{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+    display:block;
+  }
+
+  .mark{
+    position:absolute;
+    top:clamp(20px,4vw,32px);
+    left:clamp(20px,5vw,40px);
+    z-index:2;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .mark .ico{
+    width:28px;height:28px;
+    border-radius:8px;
+    background:var(--brand-blue);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:15px;
+    flex:none;
+  }
+  .mark .name{
+    font-size:17px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .mark .divider{
+    width:1px;
+    height:20px;
+    background:var(--border-subtle);
+  }
+  .mark .partner{
+    font-size:17px;
+    font-weight:800;
+    font-style:italic;
+    letter-spacing:-0.02em;
+    color:var(--ifood-red);
+  }
+
+  .card{
+    position:absolute;
+    z-index:2;
+    top:50%;
+    left:clamp(20px,6vw,80px);
+    transform:translateY(-50%);
+    width:100%;
+    max-width:300px;
+    padding:28px 26px 26px;
+    border-radius:16px;
+    background:var(--card-bg);
+    box-shadow:0 20px 45px -20px rgba(15,40,45,0.28), 0 2px 8px rgba(15,40,45,0.06);
+    opacity:0;
+    animation:rise 0.6s cubic-bezier(.2,.8,.2,1) 0.1s forwards;
+  }
+  @keyframes rise{to{opacity:1;}}
+
+  .card h1{
+    font-size:19px;
+    font-weight:700;
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  .card p.sub{
+    margin:0 0 18px;
+    font-size:12.5px;
+    color:var(--text-muted);
+    line-height:1.5;
+  }
+
+  .banner{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:9px 12px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:600;
+    margin-bottom:16px;
+  }
+  .banner--error{
+    border:1px solid #f4c6c6;
+    background:#fdf1f1;
+    color:var(--danger);
+  }
+  .banner--ok{
+    border:1px solid #c7ead9;
+    background:#f0faf5;
+    color:var(--ok);
+  }
+  .banner[hidden]{display:none;}
+
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-size:10.5px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--text-muted);
+    margin-bottom:6px;
+  }
+  .field input{
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid var(--border-subtle);
+    background:var(--field-bg);
+    color:var(--ink);
+    font-size:13.5px;
+    font-family:var(--sans);
+    outline:none;
+    transition:border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+  .field input::placeholder{color:var(--text-muted); opacity:0.6;}
+  .field input:focus{
+    background:#fff;
+    border-color:var(--brand-blue);
+    box-shadow:0 0 0 3px rgba(47,111,237,0.14);
+  }
+  .field.valid input{border-color:var(--ok);}
+  .field.invalid input{border-color:var(--danger);}
+  .hint{
+    display:block;
+    min-height:14px;
+    margin-top:5px;
+    font-size:11px;
+    color:var(--danger);
+  }
+
+  button.submit{
+    width:100%;
+    margin-top:4px;
+    padding:11px 14px;
+    border:none;
+    border-radius:8px;
+    background:var(--brand-blue);
+    color:#fff;
+    font:inherit;
+    font-size:13.5px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition:background 0.2s ease, transform 0.15s ease;
+  }
+  button.submit:hover{background:var(--brand-blue-strong);}
+  button.submit:active{transform:translateY(1px);}
+  button.submit:disabled{cursor:default; opacity:0.85;}
+  button.submit:focus-visible{outline:2px solid var(--brand-blue); outline-offset:3px;}
+
+  .btn-label, .btn-spinner{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .btn-spinner{display:none;}
+  .spin{
+    width:14px;height:14px;
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,0.4);
+    border-top-color:#fff;
+    animation:spin 0.7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  button.submit.loading .btn-label{display:none;}
+  button.submit.loading .btn-spinner{display:inline-flex;}
+
+  .tagline-wrap{
+    position:absolute;
+    z-index:2;
+    bottom:clamp(20px,4vw,32px);
+    left:clamp(20px,5vw,40px);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .tagline{
+    font-family:var(--mono);
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink);
+    white-space:nowrap;
+    border-right:1px solid transparent;
+  }
+  .tagline.typing{animation:caret 0.8s step-end 4;}
+  @keyframes caret{50%{border-color:var(--wave-1);}}
+  .sparkle{
+    color:var(--wave-1);
+    font-size:14px;
+    opacity:0;
+    transition:opacity 0.4s ease;
+  }
+  .sparkle.visible{opacity:1;}
+
+  .caption{
+    position:absolute;
+    z-index:2;
+    right:clamp(20px,3vw,40px);
+    bottom:clamp(20px,3vw,32px);
+    text-align:right;
+    max-width:320px;
+  }
+  .caption h2{
+    font-weight:700;
+    font-size:16px;
+    letter-spacing:-0.01em;
+    margin:0 0 5px;
+    color:var(--ink);
+  }
+  .caption p{
+    margin:0;
+    font-size:12px;
+    line-height:1.55;
+    color:var(--text-muted);
+  }
+  .caption .signature{
+    margin-top:8px;
+    font-size:11.5px;
+    font-style:italic;
+    color:var(--text-muted);
+  }
+
+  @media (max-width:760px){
+    .caption{display:none;}
+    .card{left:50%; transform:translate(-50%,-50%);}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .card{animation:none !important; opacity:1;}
+    .tagline{animation:none !important;}
+    .sparkle{transition:none;}
+    .spin{animation:none;}
+  }
+</style>
+</head>
+<body>
+
+<svg class="bg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="gPage" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6fefc"/>
+      <stop offset="1" stop-color="#eafdf8"/>
+    </linearGradient>
+    <linearGradient id="gA" x1="0" y1="0" x2="1" y2="0.3">
+      <stop offset="0" stop-color="#eafdf8"/>
+      <stop offset="0.5" stop-color="#bdf0e6"/>
+      <stop offset="1" stop-color="#eafdf8"/>
+    </linearGradient>
+    <linearGradient id="gB" x1="0" y1="0" x2="1" y2="0.25">
+      <stop offset="0" stop-color="#bdf0e6"/>
+      <stop offset="0.5" stop-color="#4fd2c2"/>
+      <stop offset="1" stop-color="#9fe6da"/>
+    </linearGradient>
+    <linearGradient id="gC" x1="0" y1="0" x2="1" y2="0.25">
+      <stop offset="0" stop-color="#3fc7b8"/>
+      <stop offset="0.5" stop-color="#22b8ac"/>
+      <stop offset="1" stop-color="#0f8f82"/>
+    </linearGradient>
+    <linearGradient id="gD" x1="0" y1="0" x2="1" y2="0.25">
+      <stop offset="0" stop-color="#149a8d"/>
+      <stop offset="0.5" stop-color="#0d9488"/>
+      <stop offset="1" stop-color="#0a6b62"/>
+    </linearGradient>
+    <linearGradient id="gE" x1="0" y1="0" x2="1" y2="0.25">
+      <stop offset="0" stop-color="#0a5f58"/>
+      <stop offset="0.5" stop-color="#0a4f48"/>
+      <stop offset="1" stop-color="#083f39"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="1440" height="900" fill="url(#gPage)"/>
+
+  <path fill="url(#gA)" d="M0,180 C220,80 380,290 620,190 C860,90 1020,300 1260,200 C1350,160 1400,150 1440,140 L1440,900 L0,900 Z"/>
+  <path fill="url(#gB)" d="M0,330 C240,230 400,430 660,330 C900,240 1060,440 1300,340 C1370,310 1410,300 1440,290 L1440,900 L0,900 Z"/>
+  <path fill="url(#gC)" d="M0,470 C260,380 440,560 700,470 C940,390 1100,570 1340,480 C1390,460 1420,450 1440,440 L1440,900 L0,900 Z"/>
+  <path fill="url(#gD)" d="M0,610 C280,530 460,690 720,610 C960,540 1120,700 1360,620 C1400,605 1425,600 1440,595 L1440,900 L0,900 Z"/>
+  <path fill="url(#gE)" d="M0,740 C300,670 480,810 740,740 C980,675 1140,815 1380,745 C1410,735 1428,730 1440,725 L1440,900 L0,900 Z"/>
+
+  <ellipse cx="520" cy="240" rx="220" ry="34" fill="#ffffff" opacity="0.28"/>
+  <ellipse cx="1020" cy="360" rx="180" ry="26" fill="#ffffff" opacity="0.20"/>
+  <ellipse cx="760" cy="500" rx="200" ry="24" fill="#ffffff" opacity="0.14"/>
+</svg>
+
+<div class="mark">
+  <span class="ico" aria-hidden="true">X</span>
+  <span class="name">gestor.</span>
+  <span class="divider" aria-hidden="true"></span>
+  <span class="partner">ifood</span>
+</div>
+
+<form class="card" id="loginForm" method="post" action="/login" novalidate>
+  <h1>Entrar</h1>
+  <p class="sub">Acesse o painel da sua loja.</p>
+
+  <div class="banner banner--error" id="errorBanner" role="alert" hidden>
+    Usuário ou senha inválidos.
+  </div>
+  <div class="banner banner--ok" id="logoutBanner" role="status" hidden>
+    Sessão encerrada.
+  </div>
+
+  <div class="field" id="userField">
+    <label for="username">Usuário</label>
+    <input type="text" id="username" name="username" autocomplete="username" />
+    <span class="hint" id="userHint"></span>
+  </div>
+
+  <div class="field" id="passField">
+    <label for="password">Senha</label>
+    <input type="password" id="password" name="password" autocomplete="current-password" />
+    <span class="hint" id="passHint"></span>
+  </div>
+
+  <input type="hidden" name="_csrf" id="csrfField" value="">
+
+  <button type="submit" class="submit" id="submitBtn">
+    <span class="btn-label">Sign in</span>
+    <span class="btn-spinner"><span class="spin"></span>Solving…</span>
+  </button>
+</form>
+
+<div class="tagline-wrap">
+  <span class="tagline" id="tagline"></span>
+  <span class="sparkle" id="taglineSparkle">✦</span>
+</div>
+
+<div class="caption">
+  <h2>Every problem has a shape.</h2>
+  <p>Layers resolve into one line the moment the pieces line up — that's the whole idea.</p>
+  <p class="signature">— Vitor Raphael, Engenheiro de Software.</p>
+</div>
+
+<script>
+  'use strict';
+
+  /* =====================================================================
+   * O submit é um POST de formulário de verdade (sem fetch): quem valida
+   * usuário/senha é o Spring Security. Este JS só bloqueia campo vazio e
+   * preenche o _csrf a partir do cookie XSRF-TOKEN gravado pelo
+   * CsrfCookieFilter (ver SecurityConfig.java) -- login.html é estático,
+   * então não há view engine pra injetar o token num campo oculto.
+   * ================================================================== */
+
+  function lerCookie(nome){
+    const alvo = nome + '=';
+    for(const parte of document.cookie.split('; ')){
+      if(parte.startsWith(alvo)) return decodeURIComponent(parte.slice(alvo.length));
+    }
+    return null;
+  }
+
+  // Digita caractere por caractere de verdade, em vez de animar `width` em
+  // CSS: uma animação de width baseada em `ch` não sabe do letter-spacing
+  // extra entre caracteres, então cortava o texto antes de terminar.
+  function digitarTagline(texto, elemento, sparkleElemento){
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduceMotion){
+      elemento.textContent = texto;
+      sparkleElemento.classList.add('visible');
+      return;
+    }
+    elemento.classList.add('typing');
+    let i = 0;
+    const intervalo = setInterval(() => {
+      i++;
+      elemento.textContent = texto.slice(0, i);
+      if(i >= texto.length){
+        clearInterval(intervalo);
+        setTimeout(() => {
+          elemento.classList.remove('typing');
+          sparkleElemento.classList.add('visible');
+        }, 600);
+      }
+    }, 55);
+  }
+
+  setTimeout(() => {
+    digitarTagline('solving software problems', document.getElementById('tagline'), document.getElementById('taglineSparkle'));
+  }, 900);
+
+  const userField = document.getElementById('userField');
+  const passField = document.getElementById('passField');
+  const userInput = document.getElementById('username');
+  const passInput = document.getElementById('password');
+  const userHint = document.getElementById('userHint');
+  const passHint = document.getElementById('passHint');
+  const form = document.getElementById('loginForm');
+  const btn = document.getElementById('submitBtn');
+  const csrfField = document.getElementById('csrfField');
+
+  function validar(campo, input, hint, mensagem){
+    if(input.value.trim()){
+      campo.classList.add('valid');
+      campo.classList.remove('invalid');
+      hint.textContent = '';
+      return true;
+    }
+    campo.classList.add('invalid');
+    campo.classList.remove('valid');
+    hint.textContent = mensagem;
+    return false;
+  }
+
+  userInput.addEventListener('input', () => validar(userField, userInput, userHint, 'Informe o usuário.'));
+  passInput.addEventListener('input', () => validar(passField, passInput, passHint, 'Informe a senha.'));
+
+  const params = new URLSearchParams(window.location.search);
+  if(params.has('error')) document.getElementById('errorBanner').hidden = false;
+  if(params.has('logout')) document.getElementById('logoutBanner').hidden = false;
+
+  window.addEventListener('load', () => userInput.focus());
+
+  form.addEventListener('submit', (e) => {
+    const okUser = validar(userField, userInput, userHint, 'Informe o usuário.');
+    const okPass = validar(passField, passInput, passHint, 'Informe a senha.');
+    if(!okUser || !okPass){
+      e.preventDefault();
+      return;
+    }
+    csrfField.value = lerCookie('XSRF-TOKEN') || '';
+    btn.disabled = true;
+    btn.classList.add('loading');
+    // sem preventDefault daqui pra frente: o form segue o POST normal para /login
+  });
+
+</script>
+</body>
+</html>

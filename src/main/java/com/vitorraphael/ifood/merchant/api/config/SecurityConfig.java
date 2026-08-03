@@ -11,6 +11,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -46,14 +49,39 @@ public class SecurityConfig {
                         .requestMatchers("/api/status").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form.permitAll())
-                .logout(logout -> logout.permitAll())
+                .formLogin(form -> form
+                        .loginPage("/login.html")
+                        .loginProcessingUrl("/login")
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/login.html?logout")
+                        .permitAll())
                 // CSRF desligado só para /api/**: o painel é uma SPA local (sem terceiros
                 // envolvidos) que autentica por cookie de sessão e chama a API via fetch()
                 // sem token CSRF. Isso é aceitável porque server.address já restringe a API
                 // a 127.0.0.1 -- não é seguro se a API algum dia passar a aceitar conexões
                 // de fora da própria máquina.
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
+                //
+                // Já o /login continua protegido por CSRF: login.html é HTML estático (sem
+                // view engine), então não há como o servidor injetar um campo oculto com o
+                // token na hora de renderizar, como a página automática do Spring fazia.
+                // Em vez disso usamos CookieCsrfTokenRepository: o token vai num cookie
+                // legível por JS (XSRF-TOKEN) e o próprio login.html o lê e preenche um
+                // campo oculto antes do submit. O CsrfCookieFilter força esse cookie a ser
+                // sempre gravado -- sem ele, o token só é resolvido "de forma preguiçosa"
+                // quando algo lê o atributo _csrf, o que nunca aconteceria aqui.
+                //
+                // csrfTokenRequestHandler PRECISA ser o CsrfTokenRequestAttributeHandler
+                // "puro": o padrão do Spring 6 (XorCsrfTokenRequestAttributeHandler) mascara
+                // o token com XOR pensando em view engine desmascarando na hora de renderizar
+                // um form -- não é o nosso caso (HTML estático). Com o handler padrão, o valor
+                // gravado no cookie nunca bate com o que o servidor espera validar, e todo
+                // POST /login cai como CSRF inválido antes mesmo de checar usuário/senha.
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                        .ignoringRequestMatchers("/api/**"))
+                .addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class);
 
         return http.build();
     }
