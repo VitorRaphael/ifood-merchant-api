@@ -84,61 +84,28 @@
                     </button>
                 </li>
                 <li>
-                    <span class="nav__item nav__item--soon" aria-disabled="true" title="Cardápio &amp; Opções — ainda não disponível">
+                    <button type="button" class="nav__item nav__item--link" id="nav-financeiro" data-view="financeiro" title="Financeiro">
                         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M3 2v7a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V2"/>
-                            <path d="M6 11v11"/>
-                            <path d="M20 15V2a4 4 0 0 0-3 3.9V13a2 2 0 0 0 2 2h1Zm0 0v7"/>
+                            <circle cx="12" cy="12" r="9"/>
+                            <path d="M14.8 9a2.5 2.5 0 0 0-2.3-1.5h-1a2 2 0 0 0 0 4h1a2 2 0 0 1 0 4h-1A2.5 2.5 0 0 1 9.2 14"/>
+                            <path d="M12 6.5v1M12 16.5v1"/>
                         </svg>
-                        <span class="nav__text sidebar__expanded">Cardápio &amp; Opções</span>
-                        <span class="sr-only"> (em breve)</span>
-                        <span class="badge sidebar__expanded" aria-hidden="true">em breve</span>
-                    </span>
-                </li>
-                <li>
-                    <span class="nav__item nav__item--soon" aria-disabled="true" title="Relatórios e Financeiro — ainda não disponível">
-                        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M3 3v16a2 2 0 0 0 2 2h16"/>
-                            <rect x="7" y="12" width="3" height="5" rx="1"/>
-                            <rect x="12" y="8" width="3" height="9" rx="1"/>
-                            <rect x="17" y="5" width="3" height="12" rx="1"/>
-                        </svg>
-                        <span class="nav__text sidebar__expanded">Relatórios e Financeiro</span>
-                        <span class="sr-only"> (em breve)</span>
-                        <span class="badge sidebar__expanded" aria-hidden="true">em breve</span>
-                    </span>
-                </li>
-            </ul>
-            </div>
-
-            <div class="nav__group">
-            <p class="nav__label sidebar__expanded">Utilitários</p>
-            <ul class="nav__list">
-                <li>
-                    <span class="nav__item nav__item--soon" aria-disabled="true" title="Configurações — ainda não disponível">
-                        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M12.5 2h-1a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.5.9a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.6a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.5.9a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7V20a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.5-.9a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.6a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.5-.9a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2Z"/>
-                            <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                        <span class="nav__text sidebar__expanded">Configurações</span>
-                        <span class="sr-only"> (em breve)</span>
-                        <span class="badge sidebar__expanded" aria-hidden="true">em breve</span>
-                    </span>
+                        <span class="nav__text sidebar__expanded">Financeiro</span>
+                    </button>
                 </li>
             </ul>
             </div>
         </nav>
 
-        <div class="sidebar__footer">
+        <button type="button" class="sidebar__footer sidebar__footer--link nav__item--link" id="nav-loja" data-view="loja" title="Minha Loja">
             <div class="profile">
                 <span class="profile__avatar" aria-hidden="true">ML</span>
                 <span class="profile__info sidebar__expanded">
                     <span class="profile__name">Minha loja</span>
-                    <span class="profile__meta">Painel local · iFood</span>
+                    <span class="profile__meta">Status, pausas e horários</span>
                 </span>
             </div>
-            <p class="profile__hint sidebar__expanded">Perfil da loja e preferências chegam em uma próxima versão.</p>
-        </div>
+        </button>
     </aside>
 
     <!-- ==================== ÁREA PRINCIPAL ==================== -->
@@ -164,6 +131,13 @@
             </nav>
 
             <div class="topbar__actions">
+                <span class="topbar__pill" id="pill-homologacao" title="Ambiente conectado à API do iFood">
+                    <svg class="ico ico--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                    <span id="homologacao-texto">Carregando ambiente…</span>
+                </span>
                 <span class="topbar__pill">
                     <svg class="ico ico--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M3 12a9 9 0 0 1 9-9 9.8 9.8 0 0 1 6.7 2.7L21 8"/>
@@ -377,6 +351,144 @@
             </div>
             <!-- ==================== FIM VIEW: GESTOR DE PEDIDOS ==================== -->
 
+            <!-- ==================== VIEW: MINHA LOJA ==================== -->
+            <div id="view-financeiro" class="view" hidden>
+
+                <section class="card" aria-labelledby="titulo-financeiro-sync">
+                    <div class="card__head">
+                        <div class="card__heading">
+                            <h2 class="card__title" id="titulo-financeiro-sync">Liquidações (Repasses)</h2>
+                            <p class="card__caption">GET /financial/v3.0/merchants/{merchantId}/settlements</p>
+                        </div>
+                    </div>
+                    <div class="card__body">
+                        <form id="financeiro-form" class="loja-form">
+                            <div class="field">
+                                <label class="field__label" for="financeiro-inicio">Início</label>
+                                <input class="field__input" type="date" id="financeiro-inicio" required>
+                            </div>
+                            <div class="field">
+                                <label class="field__label" for="financeiro-fim">Fim</label>
+                                <input class="field__input" type="date" id="financeiro-fim" required>
+                            </div>
+                            <button type="submit" class="button button--primary" id="financeiro-sincronizar-btn">Sincronizar liquidações</button>
+                            <button type="button" class="ghost-button" id="financeiro-atualizar-btn">Atualizar lista</button>
+                        </form>
+
+                        <div id="financeiro-tabela" class="table-view table-view--hidden"></div>
+                        <p id="financeiro-vazio" class="empty-state">Nenhum repasse sincronizado ainda — escolha um período e clique em "Sincronizar liquidações".</p>
+                    </div>
+                </section>
+
+            </div>
+
+            <div id="view-loja" class="view" hidden>
+
+                <section class="card" aria-labelledby="titulo-loja-lista">
+                    <div class="card__head">
+                        <div class="card__heading">
+                            <h2 class="card__title" id="titulo-loja-lista">Lojas vinculadas</h2>
+                            <p class="card__caption">GET /merchants — lojas conectadas a este aplicativo</p>
+                        </div>
+                        <div class="card__actions">
+                            <button type="button" class="button button--primary" id="loja-listar-btn">Listar lojas</button>
+                        </div>
+                    </div>
+                    <div class="card__body">
+                        <div id="loja-lista" class="loja-lista"></div>
+                        <p id="loja-lista-vazio" class="empty-state empty-state--hidden">Nenhuma loja carregada ainda — clique em "Listar lojas".</p>
+                    </div>
+                </section>
+
+                <div class="card-grid">
+                    <section class="card" aria-labelledby="titulo-loja-detalhes">
+                        <div class="card__head">
+                            <div class="card__heading">
+                                <h2 class="card__title" id="titulo-loja-detalhes">Detalhes da loja</h2>
+                                <p class="card__caption">GET /merchants/{merchantId}</p>
+                            </div>
+                        </div>
+                        <div class="card__body">
+                            <dl id="loja-detalhes" class="loja-chaves"></dl>
+                            <p id="loja-detalhes-vazio" class="empty-state">Escolha "Ver detalhes" numa loja da lista acima.</p>
+                        </div>
+                    </section>
+
+                    <section class="card" aria-labelledby="titulo-loja-status">
+                        <div class="card__head">
+                            <div class="card__heading">
+                                <h2 class="card__title" id="titulo-loja-status">Disponibilidade</h2>
+                                <p class="card__caption">GET /merchants/{merchantId}/status</p>
+                            </div>
+                            <div class="card__actions">
+                                <button type="button" class="button button--primary" id="loja-status-btn">Consultar disponibilidade</button>
+                            </div>
+                        </div>
+                        <div class="card__body">
+                            <div id="loja-status-pill" class="loja-status-pill loja-status-pill--hidden"></div>
+                            <dl id="loja-status-detalhes" class="loja-chaves"></dl>
+                            <p id="loja-status-vazio" class="empty-state">Ainda não consultado.</p>
+                        </div>
+                    </section>
+                </div>
+
+                <section class="card" aria-labelledby="titulo-pausas">
+                    <div class="card__head">
+                        <div class="card__heading">
+                            <h2 class="card__title" id="titulo-pausas">Pausas (Interrupções)</h2>
+                            <p class="card__caption">GET · POST · DELETE /merchants/{merchantId}/interruptions</p>
+                        </div>
+                        <div class="card__actions">
+                            <button type="button" class="ghost-button" id="pausas-listar-btn">Atualizar lista</button>
+                        </div>
+                    </div>
+                    <div class="card__body">
+                        <div id="pausas-lista" class="pausas-lista"></div>
+                        <p id="pausas-lista-vazio" class="empty-state">Nenhuma pausa ativa no momento.</p>
+
+                        <form id="pausa-form" class="loja-form">
+                            <div class="field">
+                                <label class="field__label" for="pausa-descricao">Motivo</label>
+                                <input class="field__input" type="text" id="pausa-descricao" maxlength="120" placeholder="Ex.: Manutenção do equipamento" required>
+                            </div>
+                            <div class="field">
+                                <label class="field__label" for="pausa-inicio">Início</label>
+                                <input class="field__input" type="datetime-local" id="pausa-inicio" required>
+                            </div>
+                            <div class="field">
+                                <label class="field__label" for="pausa-fim">Fim</label>
+                                <input class="field__input" type="datetime-local" id="pausa-fim" required>
+                            </div>
+                            <button type="submit" class="button button--primary" id="pausa-criar-btn">Criar pausa</button>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="card" aria-labelledby="titulo-horarios">
+                    <div class="card__head">
+                        <div class="card__heading">
+                            <h2 class="card__title" id="titulo-horarios">Horário de funcionamento</h2>
+                            <p class="card__caption">GET · PUT /merchants/{merchantId}/opening-hours</p>
+                        </div>
+                        <div class="card__actions">
+                            <button type="button" class="ghost-button" id="horarios-listar-btn">Consultar horários</button>
+                        </div>
+                    </div>
+                    <div class="card__body">
+                        <div id="horarios-tabela" class="table-view table-view--hidden"></div>
+                        <p id="horarios-vazio" class="empty-state">Nenhum turno consultado ainda.</p>
+
+                        <div id="horarios-turnos" class="horarios-turnos"></div>
+                        <div class="loja-form__acoes">
+                            <button type="button" class="ghost-button" id="horario-add-turno-btn">+ Adicionar turno</button>
+                            <button type="button" class="button button--primary" id="horarios-salvar-btn">Salvar horários</button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+            <!-- ==================== FIM VIEW: MINHA LOJA ==================== -->
+
         </main>
     </div>
 </div>
@@ -404,6 +516,8 @@
 
 <script src="js/app.js"></script>
 <script src="js/pedidos.js"></script>
+<script src="js/loja.js"></script>
+<script src="js/financeiro.js"></script>
 
 <script>
 /*
@@ -423,6 +537,16 @@
         'pedidos': {
             titulo: 'Gestor de Pedidos',
             subtitulo: 'Acompanhe o pedido do aceite até a entrega, em tempo real.',
+            mostrarMeta: false,
+        },
+        'loja': {
+            titulo: 'Minha Loja',
+            subtitulo: 'Dados da loja, disponibilidade, pausas e horário de funcionamento no iFood.',
+            mostrarMeta: false,
+        },
+        'financeiro': {
+            titulo: 'Financeiro',
+            subtitulo: 'Liquidações (repasses) recebidas do iFood, sincronizadas direto da API oficial.',
             mostrarMeta: false,
         },
     };
@@ -463,6 +587,12 @@
 
         if (nomeView === 'pedidos' && window.Pedidos) {
             window.Pedidos.iniciar();
+        }
+        if (nomeView === 'loja' && window.Loja) {
+            window.Loja.iniciar();
+        }
+        if (nomeView === 'financeiro' && window.Financeiro) {
+            window.Financeiro.iniciar();
         }
     }
 

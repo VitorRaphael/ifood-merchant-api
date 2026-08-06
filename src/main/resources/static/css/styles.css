@@ -803,6 +803,14 @@ img, svg {
  * ========================================================================== */
 
 .status-banner {
+    /* Fixo no canto da tela em vez de dentro do fluxo da página: antes, rolar
+       a página pra baixo (pra mexer em Pausas/Horários, por exemplo) tirava
+       o aviso da tela — tanto o de erro quanto o de sucesso. */
+    position: fixed;
+    right: var(--sp-6);
+    bottom: var(--sp-6);
+    z-index: 50;
+    max-width: min(420px, calc(100vw - var(--sp-6) * 2));
     display: flex;
     align-items: center;
     gap: var(--sp-3);
@@ -1588,8 +1596,24 @@ img, svg {
     }
 
     .sidebar__collapse,
-    .sidebar__footer,
     .nav__label {
+        display: none;
+    }
+
+    /* .sidebar__footer virou o botão de navegação "Minha Loja" — não pode
+       mais ficar invisível aqui como quando era só um cartão decorativo.
+       Encolhe pra caber na barra horizontal em vez de sumir. */
+    .sidebar__footer {
+        order: 2;
+        flex: none;
+        padding: 6px var(--sp-3);
+        margin: 0;
+        border: 0;
+        box-shadow: none;
+        background: none;
+    }
+
+    .sidebar__footer .profile__meta {
         display: none;
     }
 
@@ -1939,4 +1963,197 @@ img, svg {
 .kanban__card-acao {
     width: 100%;
     justify-content: center;
+}
+
+/* =============================================================================
+ * 14. MINHA LOJA  (view-loja: dados da loja, disponibilidade, pausas, horários)
+ * ========================================================================== */
+
+/* Card "Minha loja" da sidebar virou o gatilho da view — reset de <button>
+   por cima do visual de .sidebar__footer que já existia. */
+.sidebar__footer--link {
+    appearance: none;
+    width: 100%;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.sidebar__footer--link:hover {
+    border-color: var(--border-hover);
+}
+
+.sidebar__footer--link.nav__item--active {
+    border-color: var(--brand-line);
+    background: var(--brand-soft);
+}
+
+.ghost-button--perigo:hover {
+    color: var(--critical);
+    border-color: var(--critical-line);
+}
+
+.loja-lista,
+.pausas-lista {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+}
+
+.loja-lista__item,
+.pausas-lista__item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-3);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: var(--surface-1);
+}
+
+.loja-lista__nome {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.loja-lista__id {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+}
+
+.pausas-lista__descricao {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.pausas-lista__periodo {
+    flex: 1;
+    min-width: 0;
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+}
+
+/* Lista de definição genérica (achatarObjeto em loja.js) — grade simples
+   rótulo/valor, sem depender de nomes de campo fixos da API da iFood. */
+.loja-chaves {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: var(--sp-2) var(--sp-4);
+    margin: 0;
+    font-size: var(--fs-sm);
+}
+
+.loja-chaves dt {
+    color: var(--text-muted);
+    overflow-wrap: anywhere;
+}
+
+.loja-chaves dd {
+    margin: 0;
+    color: var(--text-primary);
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.loja-status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--sp-1) var(--sp-3);
+    margin-bottom: var(--sp-3);
+    border-radius: 999px;
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.loja-status-pill--hidden {
+    display: none;
+}
+
+.loja-status-pill--ok {
+    background: var(--emerald-50);
+    color: var(--emerald-700);
+    border: 1px solid var(--emerald-200);
+}
+
+.loja-status-pill--alerta {
+    background: var(--neutral-100);
+    color: var(--neutral-700);
+    border: 1px solid var(--neutral-300);
+}
+
+.loja-status-pill--erro {
+    background: var(--critical-soft);
+    color: var(--critical);
+    border: 1px solid var(--critical-line);
+}
+
+.loja-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--sp-3);
+    margin-top: var(--sp-4);
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.loja-form .field {
+    flex: 1;
+    min-width: 10rem;
+}
+
+.loja-form__acoes {
+    display: flex;
+    gap: var(--sp-3);
+    margin-top: var(--sp-4);
+}
+
+.horarios-turnos {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    margin-top: var(--sp-4);
+}
+
+.horarios-turnos__linha {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+}
+
+.horarios-turnos__linha .field__input {
+    width: auto;
+}
+
+.horarios-turnos__ate {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+}
+
+.kanban__card-codigo-entrega {
+    margin: 0 0 var(--sp-2);
+    padding: var(--sp-1) var(--sp-2);
+    border-radius: var(--r-sm);
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+}
+
+/* Variante verde do #status-banner (mostrarSucesso em app.js) — mesma estrutura
+   do erro, só troca cor e ícone (contorno vira check em vez de exclamação). */
+.status-banner--sucesso {
+    border-color: var(--emerald-200);
+    background: var(--emerald-50);
+    color: var(--emerald-700);
+}
+
+.status-banner--sucesso::before {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23047857' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 6 9 17l-5-5'/></svg>");
 }

@@ -2,6 +2,7 @@ package com.vitorraphael.ifood.merchant.api.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
@@ -27,6 +28,9 @@ public class IFoodEventService {
     private final VendaService vendaService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    @Value("${ifood.merchant.id}")
+    private String merchantId;
+
     public IFoodEventService(IFoodAuthService authService, IFoodOrderService orderService, VendaService vendaService) {
         this.authService = authService;
         this.orderService = orderService;
@@ -47,10 +51,14 @@ public class IFoodEventService {
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
 
+        // Critério oficial de homologação do módulo Events (Polling): filtrar
+        // eventos por loja via esse header, em vez de receber de todo mundo
+        // que o app tiver acesso.
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(EVENTS_URL))
                 .header("Authorization", "Bearer " + token)
                 .header("Accept", "application/json")
+                .header("x-polling-merchants", merchantId)
                 .timeout(Duration.ofSeconds(10))
                 .GET()
                 .build();

@@ -104,8 +104,15 @@ async function buscarJson(url) {
     return resposta.json();
 }
 
+let sucessoTimeoutId = null;
+
 function mostrarErro(mensagem) {
     const banner = document.getElementById('status-banner');
+    if (sucessoTimeoutId) {
+        clearTimeout(sucessoTimeoutId);
+        sucessoTimeoutId = null;
+    }
+    banner.classList.remove('status-banner--sucesso');
     banner.textContent = mensagem;
     banner.classList.remove('status-banner--hidden');
 }
@@ -113,6 +120,25 @@ function mostrarErro(mensagem) {
 function ocultarErro() {
     const banner = document.getElementById('status-banner');
     banner.classList.add('status-banner--hidden');
+}
+
+// Mesmo banner do erro, só que verde e some sozinho — pra ações que dão certo
+// (criar pausa, remover, salvar horários) terem alguma confirmação visível,
+// em vez do usuário ter que adivinhar pelo silêncio se funcionou.
+function mostrarSucesso(mensagem) {
+    const banner = document.getElementById('status-banner');
+    banner.classList.add('status-banner--sucesso');
+    banner.textContent = mensagem;
+    banner.classList.remove('status-banner--hidden');
+
+    if (sucessoTimeoutId) {
+        clearTimeout(sucessoTimeoutId);
+    }
+    sucessoTimeoutId = setTimeout(() => {
+        banner.classList.add('status-banner--hidden');
+        banner.classList.remove('status-banner--sucesso');
+        sucessoTimeoutId = null;
+    }, 3000);
 }
 
 /* ---------------------------------------------------------------------
@@ -769,7 +795,42 @@ function configurarToggleTabela() {
     });
 }
 
+/* ---------------------------------------------------------------------
+ * Badge de ambiente — mostra Client ID / Merchant ID / relógio no
+ * topbar. Existe para a gravação dos vídeos de homologação do iFood, que
+ * exige esses três dados visíveis em tela durante a execução dos cenários.
+ * --------------------------------------------------------------------- */
+
+async function iniciarBadgeHomologacao() {
+    const texto = document.getElementById('homologacao-texto');
+    if (!texto) return;
+
+    try {
+        const dados = await buscarJson('/api/status/homologacao');
+        const [dataServidor, horaServidor] = dados.dataHoraServidor.split(' ');
+        let relogio = horaServidor;
+
+        const render = () => {
+            texto.textContent = `Client ID: ${dados.clientId} · Merchant: ${dados.merchantId} · ${dataServidor} ${relogio}`;
+        };
+        render();
+
+        setInterval(() => {
+            const [h, m, s] = relogio.split(':').map(Number);
+            const total = (h * 3600 + m * 60 + s + 1) % 86400;
+            relogio = [Math.floor(total / 3600), Math.floor((total % 3600) / 60), total % 60]
+                .map((n) => String(n).padStart(2, '0'))
+                .join(':');
+            render();
+        }, 1000);
+    } catch {
+        texto.textContent = 'Ambiente indisponível';
+    }
+}
+
 function iniciar() {
+    iniciarBadgeHomologacao();
+
     document.querySelectorAll('#filtro-presets .chip').forEach((chip) => {
         chip.addEventListener('click', () => aplicarPreset(chip.dataset.preset));
     });

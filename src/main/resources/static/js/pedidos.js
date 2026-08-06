@@ -97,12 +97,38 @@ function criarCardPedido(pedido) {
         card.classList.add('kanban__card--cancelado');
     }
 
+    // Pedido em rota: buscamos o código de entrega (customer.phone.localizer
+    // nos detalhes do pedido na iFood) e mostramos direto no card, pra não
+    // precisar sair do painel logado pra ir atrás dele em outro lugar.
+    if (pedido.status === 'EM_ROTA') {
+        const codigoEl = document.createElement('p');
+        codigoEl.className = 'kanban__card-codigo-entrega';
+        codigoEl.textContent = 'Buscando código de entrega…';
+        card.appendChild(codigoEl);
+
+        buscarCodigoEntrega(pedido.idVenda).then((codigo) => {
+            card.dataset.codigoEntrega = codigo || '';
+            codigoEl.textContent = codigo
+                ? `Código de entrega: ${codigo}`
+                : 'Código de entrega não encontrado nos detalhes do pedido.';
+        });
+    }
+
     const acao = criarBotaoAcao(pedido);
     if (acao) {
         card.appendChild(acao);
     }
 
     return card;
+}
+
+async function buscarCodigoEntrega(idVenda) {
+    try {
+        const detalhes = await buscarJson(`/api/pedidos/${idVenda}`);
+        return detalhes?.customer?.phone?.localizer ?? null;
+    } catch (erro) {
+        return null;
+    }
 }
 
 function criarBotaoAcao(pedido) {
@@ -120,6 +146,11 @@ function criarBotaoAcao(pedido) {
         botao.addEventListener('click', () => executarAcaoPedido(pedido.idVenda, 'despachar', botao));
         return botao;
     }
+    if (pedido.status === 'EM_ROTA') {
+        botao.textContent = 'Confirmar entrega';
+        botao.addEventListener('click', () => confirmarEntregaPedido(pedido.idVenda, botao));
+        return botao;
+    }
     return null;
 }
 
@@ -131,6 +162,35 @@ async function executarAcaoPedido(idVenda, acao, botao) {
         if (!resposta.ok) {
             const corpo = await resposta.json().catch(() => null);
             throw new Error(corpo?.mensagem ?? `Erro ${resposta.status} ao atualizar o pedido`);
+        }
+        await carregarQuadroPedidos();
+    } catch (erro) {
+        mostrarErro(erro.message);
+        botao.disabled = false;
+    }
+}
+
+// Não existe ação de API pra "concluir" um pedido — o CONCLUDED só é gerado
+// pela própria iFood ao validar o código de entrega que o cliente passa ao
+// entregador (ou por timeout automático, sem ação nenhuma nossa).
+async function confirmarEntregaPedido(idVenda, botao) {
+    const card = botao.closest('.kanban__card');
+    const codigoSugerido = card?.dataset.codigoEntrega || '';
+    const codigo = window.prompt('Código de entrega informado pelo cliente:', codigoSugerido);
+    if (!codigo) {
+        return;
+    }
+    botao.disabled = true;
+    ocultarErro();
+    try {
+        const resposta = await fetch(`/api/pedidos/${idVenda}/confirmar-entrega`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ codigo }),
+        });
+        if (!resposta.ok) {
+            const corpo = await resposta.json().catch(() => null);
+            throw new Error(corpo?.mensagem ?? `Erro ${resposta.status} ao confirmar a entrega`);
         }
         await carregarQuadroPedidos();
     } catch (erro) {

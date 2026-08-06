@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -188,6 +189,35 @@ public class VendaService {
                 },
                 () -> log.warn("Evento recebido para pedido {} que ainda não existe como Venda (status: {}).", idVenda, novoStatus)
         );
+    }
+
+    // A própria iFood documenta que o rastreamento de entrega própria expira
+    // 4h após o pedido, sem gerar CONCLUDED nem CANCELADO -- ela simplesmente
+    // "esquece" do pedido. Sem isso, um pedido nessa situação ficava preso
+    // pra sempre em "Em Rota" no Kanban, sem nenhuma ação disponível pra
+    // tirar ele de lá (não existe endpoint de cancelamento que sirva aqui).
+    // Isso só corrige o status NA NOSSA base -- não chama a API da iFood,
+    // porque não haveria nada legítimo pra chamar num pedido que ela já
+    // esqueceu.
+    private static final long LIMITE_EM_ROTA_HORAS = 4;
+
+    @Scheduled(fixedRate = 1_800_000) // a cada 30 min: é faxina, não precisa ser fino
+    public void cancelarPedidosEmRotaExpirados() {
+        OffsetDateTime limite = OffsetDateTime.now().minusHours(LIMITE_EM_ROTA_HORAS);
+
+        for (Venda venda : vendaRepository.findByStatusIn(List.of("EM_ROTA"))) {
+            try {
+                OffsetDateTime criadoEm = OffsetDateTime.parse(venda.getCriadoEm());
+                if (criadoEm.isBefore(limite)) {
+                    venda.setStatus("CANCELADO");
+                    vendaRepository.save(venda);
+                    log.info("Pedido {} passou de {}h em rota sem confirmação de entrega — marcado como cancelado localmente (a iFood também já deve ter esquecido dele).",
+                            venda.getIdVenda(), LIMITE_EM_ROTA_HORAS);
+                }
+            } catch (Exception e) {
+                log.warn("Não foi possível avaliar expiração do pedido {}: {}", venda.getIdVenda(), e.getMessage());
+            }
+        }
     }
 
 }

@@ -31,6 +31,17 @@ public class IFoodOrderService {
         executarAcao(orderId, "dispatch");
     }
 
+    // Não existe ação de API pra "concluir" um pedido diretamente — o evento
+    // CONCLUDED só é gerado pela própria iFood, seja por timeout automático,
+    // seja (aqui) pela validação do código de entrega passado ao cliente.
+    public void confirmarEntrega(String orderId, String codigo) {
+        if (codigo == null || !codigo.matches("[0-9]{1,8}")) {
+            throw new IllegalArgumentException("Código de entrega inválido: deve conter só dígitos.");
+        }
+        String corpo = "{\"code\":\"" + codigo + "\"}";
+        httpClient.post(ORDER_URL + "/" + orderId + "/verifyDeliveryCode", authService.getValidToken(), corpo);
+    }
+
     private void executarAcao(String orderId, String acao) {
         // "{}" em vez de corpo vazio: o Akamai na frente da API do iFood devolvia
         // 411 Length Required pra POST com Content-Type: application/json e corpo

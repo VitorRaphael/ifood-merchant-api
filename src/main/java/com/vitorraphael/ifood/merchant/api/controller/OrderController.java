@@ -8,10 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pedidos")
@@ -50,6 +52,13 @@ public class OrderController {
     public ResponseEntity<Void> despachar(@PathVariable String orderId) {
         orderService.despacharPedido(orderId);
         vendaService.atualizarStatus(orderId, "EM_ROTA");
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{orderId}/confirmar-entrega")
+    public ResponseEntity<Void> confirmarEntrega(@PathVariable String orderId, @RequestBody Map<String, String> corpo) {
+        orderService.confirmarEntrega(orderId, corpo.get("codigo"));
+        vendaService.atualizarStatus(orderId, "CONCLUIDO");
         return ResponseEntity.ok().build();
     }
 }
