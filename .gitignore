@@ -32,6 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 
+### Obsidian ###
+.obsidian/
+
 # Token do ifood
 tokens.json
 
