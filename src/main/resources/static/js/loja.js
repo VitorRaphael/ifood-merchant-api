@@ -236,8 +236,13 @@ async function criarPausa(evento) {
     try {
         const corpo = {
             description: descricao.value,
-            start: new Date(inicio.value).toISOString(),
-            end: new Date(fim.value).toISOString(),
+            // inicio.value/fim.value já vêm no formato "AAAA-MM-DDTHH:mm" (hora
+            // local digitada no formulário, sem fuso). NÃO usar new Date(...).
+            // toISOString() aqui: isso converte para UTC (soma/subtrai o fuso
+            // do navegador) e a iFood guarda a string exatamente como enviada,
+            // então a pausa aparecia deslocada em +3h (fuso de Brasília).
+            start: `${inicio.value}:00`,
+            end: `${fim.value}:00`,
         };
         const resposta = await fetch('/api/loja/pausas', {
             method: 'POST',

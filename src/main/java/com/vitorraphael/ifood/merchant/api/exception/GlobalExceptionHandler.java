@@ -15,6 +15,16 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    // Recursos como /sw.js e /favicon.ico não existem nesse projeto, mas
+    // navegadores pedem eles sozinhos o tempo todo (ver SecurityConfig). Sem
+    // esse handler específico, caíam no catch-all genérico abaixo: viravam
+    // erro 500 com stack trace completo no log, por um 404 completamente normal.
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ErroResposta> tratarRecursoEstaticoInexistente(
+            org.springframework.web.servlet.resource.NoResourceFoundException e, HttpServletRequest request) {
+        return construirResposta(HttpStatus.NOT_FOUND, "Recurso não encontrado.", request);
+    }
+
     @ExceptionHandler(VendaNaoEncontradaException.class)
     public ResponseEntity<ErroResposta> tratarVendaNaoEncontrada(VendaNaoEncontradaException e, HttpServletRequest request) {
         return construirResposta(HttpStatus.NOT_FOUND, e.getMessage(), request);

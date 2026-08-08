@@ -1,60 +1,72 @@
-# Roteiro — vídeos de homologação dos módulos Financial e Analytics
+# Roteiro — vídeo de homologação do módulo Analytics
 
-Baseado no checklist do chamado #31049573 (06/08/2026). Um vídeo por módulo,
-cada um com 1 cenário só, conforme pedido.
+Baseado na resposta do chamado #31049573 (07/08/2026) e nos critérios oficiais em
+`developer.ifood.com.br/pt-BR/docs/food/guides/modules/analytics/homologation`.
+
+## Financial — já aprovado, nada a regravar
+
+A equipe do iFood confirmou aprovação do módulo Financial na resposta de
+07/08/2026 ("O módulo de Financial está tudo certo, tá?"). O vídeo antigo
+continua válido — não precisa gravar de novo.
+
+## Por que o vídeo anterior de Analytics foi reprovado
+
+O avaliador não identificou **nenhuma requisição real ao módulo Analytics**
+no vídeo enviado. Isso porque, até 07/08/2026, o painel "Visão Geral" calculava
+os indicadores localmente a partir do nosso próprio banco (tabela `Venda`) —
+nunca chamava `POST /analytics/v1.0/merchants/{merchantId}/orders/kpis`. Essa
+lacuna foi corrigida: existe agora uma tela própria **Analytics** (barra
+lateral, grupo "Módulos") que faz a chamada real ao endpoint oficial.
 
 ## Antes de gravar
 
-- [ ] Rodar o backend com o `IFOOD_CLIENT_ID`/`IFOOD_CLIENT_SECRET` da **loja de teste** (Client ID
-      `d6db2399-ecb3-44c9-8672-7c9ee98f3930`) — nunca com as credenciais da loja
-      real do seu pai.
-- [ ] **Apontar pra um banco SQLite separado** enquanto grava (ex.: copiar
-      `application.properties` com `spring.datasource.url=jdbc:sqlite:homolog.db`
-      ou definir via `-Dspring.datasource.url=...` na hora de rodar). Isso evita
-      misturar dados de teste com os repasses/vendas reais da loja de produção.
+- [ ] Rodar o backend com o `IFOOD_CLIENT_ID`/`IFOOD_CLIENT_SECRET` da **loja de teste**
+      (Client ID `d6db2399-ecb3-44c9-8672-7c9ee98f3930`) — nunca com as
+      credenciais da loja real do seu pai.
 - [ ] Relógio do Windows visível durante toda a gravação.
 - [ ] Frontend aberto em `http://localhost:8080`, logado.
-- [ ] Testar as duas telas uma vez antes de gravar (sem erros no console).
+- [ ] Testar a tela **Analytics** uma vez antes de gravar (sem erros no console).
 - [ ] Gravador mostrando a tela inteira do navegador.
+- [ ] Não usar Postman/Insomnia — a chamada precisa vir da tela (front-end).
 
-## Cenário 1 — Financial (Liquidações)
+## Cenário — Analytics (Indicadores)
 
-Tela: **Financeiro** (barra lateral, grupo "Módulos").
+Tela: **Analytics** (barra lateral, grupo "Módulos").
 
-1. Abrir o painel, clicar em **Financeiro**.
-2. Escolher um período (Início/Fim) que tenha liquidações reais na loja de
-   teste e clicar em **"Sincronizar liquidações"** — isso chama
-   `GET /financial/v3.0/merchants/{merchantId}/settlements` de verdade.
-3. Mostrar a tabela preenchida (título, tipo, status, valor, data de
-   pagamento).
-4. Apontar o badge no topo da tela (Client ID / Merchant ID / horário do
+1. Abrir o painel, clicar em **Analytics**.
+2. Escolher um período (Início/Fim) e clicar em **"Consultar indicadores"** —
+   isso chama `POST /analytics/v1.0/merchants/{merchantId}/orders/kpis` de
+   verdade, com `filter.referenceDate` no corpo (obrigatório pelo critério
+   de homologação) e o header `x-request-homologation: true`.
+3. Mostrar os cartões de indicadores preenchidos: **GMV total**, **GMV sem
+   entrega**, **ticket médio**, **pedidos concluídos** e **pedidos
+   cancelados**.
+4. Mostrar a mensagem de período consultado, deixando claro que os dados são
+   **históricos (D-1)**, não em tempo real — isso é um critério explícito da
+   documentação oficial.
+5. Rolar até as 4 tabelas de distribuição e mostrar cada uma: **por canal de
+   venda**, **por status do pedido**, **por método de pagamento** e **por
+   modelo logístico**.
+6. Apontar o badge no topo da tela (Client ID / Merchant ID / horário do
    servidor) — é o dado que o avaliador vai cruzar com os logs deles.
-5. Clicar em **"Atualizar lista"** pra mostrar que os dados também ficam
-   persistidos (`GET /api/financeiro/repasses`), não é só a chamada síncrona.
 
-## Cenário 2 — Analytics (Indicadores)
+## Se a loja de teste devolver tudo zerado
 
-Tela: **Visão Geral** (tela inicial do painel).
-
-1. Abrir o painel na **Visão Geral**.
-2. Mostrar os KPIs no topo (faturamento, nº de vendas, ticket médio etc.).
-3. Trocar o período usando os chips de preset (7d, 30d...) ou o filtro de
-   datas, e mostrar os números recalculando.
-4. Rolar até o **ranking de produtos mais vendidos** e o **gráfico de
-   vendas por dia**.
-5. Mostrar a tabela de **horário de pico**.
-6. Apontar o mesmo badge do Client ID/Merchant/horário no topo da tela.
+Assim como aconteceu no Financial, é possível que o ambiente de homologação
+devolva `data` vazio se não houver pedidos recentes o suficiente no período
+escolhido. Se isso acontecer: **grave mesmo assim**, mostrando a chamada real
+sendo feita (aba Network do navegador, se o chamado pedir) e a tela tratando
+o retorno vazio sem erro — o objetivo do vídeo é provar que a integração
+funciona, não que existam dados reais na loja de teste.
 
 ## Depois de gravar
 
-- Subir os 2 vídeos no Google Drive (não anexar direto no chamado).
+- Subir o vídeo no Google Drive (não anexar direto no chamado).
 - Deixar o link com acesso liberado pra equipe do iFood.
-- Responder no chamado #31049573 com: os 2 links + Client ID
+- Responder no chamado #31049573 com: o link + Client ID
   (`d6db2399-ecb3-44c9-8672-7c9ee98f3930`) + data/hora da execução.
 
 ## Cuidado
 
 - **Nunca** rodar essa gravação com as credenciais/banco de produção da loja
-  real — só com o Client ID de teste acima e um banco SQLite separado.
-- Não usar Postman/Insomnia em nenhum momento do vídeo — todas as chamadas
-  precisam vir da tela (front-end).
+  real — só com o Client ID de teste acima.

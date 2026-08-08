@@ -1,7 +1,19 @@
 # Roteiro — vídeo de homologação do módulo Merchant
 
-Baseado nas orientações do chamado (05/08/2026) e nos critérios oficiais em
+Baseado nas orientações do chamado (05/08/2026), no checklist reenviado na
+resposta de 07/08/2026, e nos critérios oficiais em
 `developer.ifood.com.br/pt-BR/docs/guides/modules/merchant/homologacao`.
+
+## Por que o vídeo anterior foi reprovado
+
+O Cenário 1 (Informações da Loja) só mostrava os dados dentro do nosso
+painel, sem nunca trocar de aba pro **Portal do Parceiro** pra provar que os
+mesmos dados batem lá — diferente dos Cenários 2 e 3, que já faziam essa
+comparação. A mensagem do iFood foi específica: **"ficou faltando demonstrar
+os detalhes da loja sendo refletidos no Portal do Parceiro"** — ou seja, nome/
+endereço/ID (tela "Perfil da loja" no Portal), não o status/disponibilidade
+(que é um dado calculado, sem uma tela própria equivalente no Portal pra
+comparar 1:1 — só precisa ser demonstrado dentro do nosso próprio sistema).
 
 ## Antes de gravar
 
@@ -10,14 +22,24 @@ Baseado nas orientações do chamado (05/08/2026) e nos critérios oficiais em
 - [ ] Aba "Minha Loja" testada uma vez antes de gravar (sem erros no console).
 - [ ] Gravador (OBS ou extensão) mostrando a tela inteira do navegador, não uma janela recortada.
 - [ ] Um vídeo por cenário, conforme pedido no chamado — não precisa ser um único vídeo gigante.
+- [ ] Pra comparar com o Portal do Parceiro (Cenários 1, 2 e 3), tanto faz
+      trocar de aba quanto dividir a tela mostrando os dois lado a lado ao
+      mesmo tempo — as duas formas valem, desde que as duas janelas fiquem
+      inteiras e com o texto legível no vídeo.
 
 ## Cenário 1 — Informações da Loja
 
 1. Abrir o painel, clicar em **Minha Loja** na barra lateral.
 2. Clicar em **"Listar lojas"** → mostrar a lista carregada (id, nome).
 3. Clicar em **"Ver detalhes"** na loja → mostrar o card "Detalhes da loja" preenchido.
-4. Clicar em **"Consultar disponibilidade"** → mostrar o selo de status (OK/WARNING/CLOSED/ERROR) e os dados abaixo.
-5. Narrar brevemente o que apareceu em cada card (não precisa de áudio se o chamado não pedir; se pedir, é só descrever o que já está na tela).
+4. Trocar para a aba do **Portal do Parceiro** → **Perfil da loja** (login já
+   feito) → mostrar que nome/endereço/ID batem com o que apareceu no card de
+   detalhes.
+5. Voltar ao painel, clicar em **"Consultar disponibilidade"** → mostrar o
+   selo de status (OK/WARNING/CLOSED/ERROR) e os dados abaixo. Não precisa
+   comparar esse dado com o Portal — não há uma tela equivalente lá pra isso,
+   e a mensagem do iFood não pediu essa comparação especificamente.
+6. Narrar brevemente o que apareceu em cada card (não precisa de áudio se o chamado não pedir; se pedir, é só descrever o que já está na tela).
 
 ## Cenário 2 — Interrupção na Loja (pausa)
 

@@ -40,6 +40,16 @@ public class IFoodHttpClient {
                 .POST(HttpRequest.BodyPublishers.ofString(corpoJson)));
     }
 
+    // Mesmo motivo do get(url, token, headersExtras): o módulo Analytics também
+    // exige x-request-homologation:true em ambiente de teste, só que num POST.
+    public String post(String url, String token, String corpoJson, Map<String, String> headersExtras) {
+        HttpRequest.Builder builder = requestBase(url, token)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(corpoJson));
+        headersExtras.forEach(builder::header);
+        return enviar(builder);
+    }
+
     public String put(String url, String token, String corpoJson) {
         return enviar(requestBase(url, token)
                 .header("Content-Type", "application/json")

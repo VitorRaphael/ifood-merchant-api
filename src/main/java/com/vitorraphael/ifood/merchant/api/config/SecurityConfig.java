@@ -47,6 +47,13 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/status").permitAll()
+                        // Nunca existiu service worker nesse projeto, mas navegadores
+                        // guardam registros antigos por origem (ex.: de outro projeto
+                        // que já rodou em localhost:8080) e tentam rebaixar /sw.js
+                        // sozinhos, até antes do usuário logar. Sem isso, essa
+                        // requisição virava a "URL salva" pelo Spring Security e o
+                        // usuário caía nela em vez do painel logo após o login.
+                        .requestMatchers("/sw.js", "/favicon.ico").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

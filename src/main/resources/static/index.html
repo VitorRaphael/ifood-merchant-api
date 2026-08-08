@@ -93,6 +93,17 @@
                         <span class="nav__text sidebar__expanded">Financeiro</span>
                     </button>
                 </li>
+                <li>
+                    <button type="button" class="nav__item nav__item--link" id="nav-analytics" data-view="analytics" title="Analytics">
+                        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 3v18h18"/>
+                            <path d="M7 16v-4"/>
+                            <path d="M12 16V8"/>
+                            <path d="M17 16v-7"/>
+                        </svg>
+                        <span class="nav__text sidebar__expanded">Analytics</span>
+                    </button>
+                </li>
             </ul>
             </div>
         </nav>
@@ -382,6 +393,84 @@
 
             </div>
 
+            <!-- ==================== VIEW: ANALYTICS ==================== -->
+            <div id="view-analytics" class="view" hidden>
+
+                <section class="card" aria-labelledby="titulo-analytics">
+                    <div class="card__head">
+                        <div class="card__heading">
+                            <h2 class="card__title" id="titulo-analytics">Indicadores (Analytics)</h2>
+                            <p class="card__caption">POST /analytics/v1.0/merchants/{merchantId}/orders/kpis — dados agregados D-1</p>
+                        </div>
+                    </div>
+                    <div class="card__body">
+                        <form id="analytics-form" class="loja-form">
+                            <div class="field">
+                                <label class="field__label" for="analytics-inicio">Início</label>
+                                <input class="field__input" type="date" id="analytics-inicio" required>
+                            </div>
+                            <div class="field">
+                                <label class="field__label" for="analytics-fim">Fim</label>
+                                <input class="field__input" type="date" id="analytics-fim" required>
+                            </div>
+                            <button type="submit" class="button button--primary" id="analytics-consultar-btn">Consultar indicadores</button>
+                        </form>
+
+                        <p id="analytics-periodo-consultado" class="empty-state" hidden></p>
+
+                        <div class="kpi-row" id="analytics-kpi-row" role="group" aria-label="Indicadores do período consultado"></div>
+                    </div>
+                </section>
+
+                <div class="card-grid">
+                    <section class="card" aria-labelledby="titulo-analytics-canal">
+                        <div class="card__head">
+                            <div class="card__heading">
+                                <h2 class="card__title" id="titulo-analytics-canal">Por canal de venda</h2>
+                            </div>
+                        </div>
+                        <div class="card__body">
+                            <div id="analytics-canal-tabela" class="table-view table-view--hidden"></div>
+                        </div>
+                    </section>
+
+                    <section class="card" aria-labelledby="titulo-analytics-status">
+                        <div class="card__head">
+                            <div class="card__heading">
+                                <h2 class="card__title" id="titulo-analytics-status">Por status do pedido</h2>
+                            </div>
+                        </div>
+                        <div class="card__body">
+                            <div id="analytics-status-tabela" class="table-view table-view--hidden"></div>
+                        </div>
+                    </section>
+
+                    <section class="card" aria-labelledby="titulo-analytics-pagamento">
+                        <div class="card__head">
+                            <div class="card__heading">
+                                <h2 class="card__title" id="titulo-analytics-pagamento">Por método de pagamento</h2>
+                            </div>
+                        </div>
+                        <div class="card__body">
+                            <div id="analytics-pagamento-tabela" class="table-view table-view--hidden"></div>
+                        </div>
+                    </section>
+
+                    <section class="card" aria-labelledby="titulo-analytics-logistica">
+                        <div class="card__head">
+                            <div class="card__heading">
+                                <h2 class="card__title" id="titulo-analytics-logistica">Por modelo logístico</h2>
+                            </div>
+                        </div>
+                        <div class="card__body">
+                            <div id="analytics-logistica-tabela" class="table-view table-view--hidden"></div>
+                        </div>
+                    </section>
+                </div>
+
+            </div>
+            <!-- ==================== FIM VIEW: ANALYTICS ==================== -->
+
             <div id="view-loja" class="view" hidden>
 
                 <section class="card" aria-labelledby="titulo-loja-lista">
@@ -518,6 +607,7 @@
 <script src="js/pedidos.js"></script>
 <script src="js/loja.js"></script>
 <script src="js/financeiro.js"></script>
+<script src="js/analytics.js"></script>
 
 <script>
 /*
@@ -547,6 +637,11 @@
         'financeiro': {
             titulo: 'Financeiro',
             subtitulo: 'Liquidações (repasses) recebidas do iFood, sincronizadas direto da API oficial.',
+            mostrarMeta: false,
+        },
+        'analytics': {
+            titulo: 'Analytics',
+            subtitulo: 'Indicadores operacionais e financeiros direto do módulo Analytics do iFood (dados D-1).',
             mostrarMeta: false,
         },
     };
@@ -593,6 +688,9 @@
         }
         if (nomeView === 'financeiro' && window.Financeiro) {
             window.Financeiro.iniciar();
+        }
+        if (nomeView === 'analytics' && window.Analytics) {
+            window.Analytics.iniciar();
         }
     }
 
