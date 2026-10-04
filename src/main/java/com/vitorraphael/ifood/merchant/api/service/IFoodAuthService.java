@@ -8,6 +8,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -19,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.zip.GZIPInputStream;
 
 @Service
 public class IFoodAuthService {
@@ -51,17 +53,19 @@ public class IFoodAuthService {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://merchant-api.ifood.com.br/authentication/v1.0/oauth/token"))
                     .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("Accept-Encoding", "identity")
                     .POST(HttpRequest.BodyPublishers.ofString(body))
                     .build();
 
             try {
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+                String corpo = descomprimirSeNecessario(response);
 
                 if (response.statusCode() != 200) {
-                    throw new IFoodApiException(response.statusCode(), "iFood recusou a autenticação: " + response.body());
+                    throw new IFoodApiException(response.statusCode(), "iFood recusou a autenticação: " + corpo);
                 }
 
-                ObjectNode token = (ObjectNode) objectMapper.readTree(response.body());
+                ObjectNode token = (ObjectNode) objectMapper.readTree(corpo);
                 long expiresIn = token.get("expiresIn").asLong();
                 Instant expiraEm = Instant.now().plusSeconds(expiresIn);
                 token.put("expiraEm", expiraEm.toString());
@@ -86,6 +90,20 @@ public class IFoodAuthService {
             } catch (IOException e) {
                 throw new TokenIndisponivelException("Não foi possível ler o token salvo: " + e.getMessage(), e);
             }
+        }
+    }
+
+    private String descomprimirSeNecessario(HttpResponse<byte[]> response) throws IOException {
+        boolean gzip = response.headers().firstValue("Content-Encoding")
+                .map(v -> v.equalsIgnoreCase("gzip"))
+                .orElse(false);
+
+        if (!gzip) {
+            return new String(response.body(), StandardCharsets.UTF_8);
+        }
+
+        try (GZIPInputStream gzipStream = new GZIPInputStream(new ByteArrayInputStream(response.body()))) {
+            return new String(gzipStream.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
 

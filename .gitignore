@@ -53,3 +53,6 @@ instalador/
 # --code-only`. Inclui cache de AST e snapshots de backup que crescem a cada
 # rodada -- não agrega nada útil versionado.
 graphify-out/
+
+# Lixo do SO
+desktop.ini

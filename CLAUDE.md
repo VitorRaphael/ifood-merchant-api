@@ -8,4 +8,6 @@ Isto não é uma sugestão, é um HARD GATE. Já falhei em seguir essa regra uma
 
 \- \*\*Checagem de sanidade:\*\* se `git rev-parse HEAD` (curto) não bater com o "Built from commit" no topo de `graphify-out/GRAPH_REPORT.md`, o grafo está desatualizado — atualize antes de confiar nele.
 
+\- \*\*Vault Obsidian (`graphify-out/obsidian/`):\*\* depois de rodar `cluster-only`, se as comunidades mudaram de nome ou estrutura, rode também `graphify export obsidian` (com `GEMINI_API_KEY` no ambiente pra nomear as comunidades — pedir a chave ao Vitor se não estiver disponível) pra manter o vault colorido sincronizado. Abrir sempre a pasta `graphify-out/obsidian/` como vault no Obsidian, nunca a raiz do projeto.
+
 Se eu esquecer isso de novo, é falha minha de execução, não falta de instrução — a regra sempre esteve visível aqui.
